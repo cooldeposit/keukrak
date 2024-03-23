@@ -203,10 +203,12 @@ export default function Poll({
     getMe();
   }, [getMe]);
 
-  const organizedChats: {
-    nickname: NicknameType;
-    chats: string[];
-  }[] = [];
+  const [organizedChats, setOrganizedChats] = useState<
+    {
+      nickname: NicknameType;
+      chats: string[];
+    }[]
+  >([]);
 
   const nicknames = room.chats
     .map((c) => c.nickname)
@@ -224,7 +226,11 @@ export default function Poll({
       }
     });
 
-    organizedChats.push(chat);
+    setOrganizedChats((prev) =>
+      [...prev, chat].sort((a, b) =>
+        a.nickname.name.localeCompare(b.nickname.name),
+      ),
+    );
   });
 
   const isAnswerComplete = (() => {
