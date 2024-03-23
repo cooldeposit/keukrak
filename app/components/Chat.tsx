@@ -111,7 +111,7 @@ export function Bubble({
           isMine
             ? "bg-primary text-white"
             : nickname === MODERATOR
-              ? "bg-amber-500 text-white"
+              ? "bg-accent text-white"
               : "bg-slate-200 text-slate-800",
         )}
       >
