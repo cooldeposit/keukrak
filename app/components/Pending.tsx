@@ -8,6 +8,7 @@ import { RoomType } from "../types/room";
 import { getAdmin } from "../lib/getAdmin";
 import { useWebSocket } from "next-ws/client";
 import { MessageType, UserPayloadType } from "../types/message";
+import { useRouter } from "next/router";
 
 interface PendingProps {
   defaultRoom: RoomType;
@@ -27,6 +28,7 @@ export function Pending({ defaultRoom }: PendingProps) {
   const isAdmin = userId === admin.id;
 
   const ws = useWebSocket();
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof localStorage === "undefined") return;
@@ -172,6 +174,8 @@ export function Pending({ defaultRoom }: PendingProps) {
           `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/next`,
         )
       ).json();
+
+      router.reload();
     } catch (e) {
     } finally {
     }

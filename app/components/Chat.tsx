@@ -108,8 +108,11 @@ export function Bubble({
       <div
         className={j(
           "chat-bubble pt-2.5",
-          nickname === MODERATOR ? "bg-amber-500 text-white" : "",
-          isMine ? "bg-primary text-white" : "bg-slate-200 text-slate-800",
+          isMine
+            ? "bg-primary text-white"
+            : nickname === MODERATOR
+              ? "bg-amber-500 text-white"
+              : "bg-slate-200 text-slate-800",
         )}
       >
         {text}
