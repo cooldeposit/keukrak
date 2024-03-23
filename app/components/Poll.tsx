@@ -231,28 +231,24 @@ export default function Poll({
   useEffect(() => {
     console.log(room.chats);
     if (room.chats)
-      room.chats
-        .filter((c) => c.nickname.name !== MODERATOR)
-        .map((c) => c.nickname)
-        .filter((nickname, index, self) => self.indexOf(nickname) === index)
-        .forEach((nickname) => {
-          const chat = {
-            nickname,
-            chats: [] as string[],
-          };
+      room.nicknames.forEach((nickname) => {
+        const chat = {
+          nickname,
+          chats: [] as string[],
+        };
 
-          room.chats.forEach((c) => {
-            if (c.nickname.name === nickname.name) {
-              chat.chats.push(c.message);
-            }
-          });
-
-          setOrganizedChats((prev) =>
-            [...prev, chat].sort((a, b) =>
-              a.nickname.name.localeCompare(b.nickname.name),
-            ),
-          );
+        room.chats.forEach((c) => {
+          if (c.nickname.name === nickname.name) {
+            chat.chats.push(c.message);
+          }
         });
+
+        setOrganizedChats((prev) =>
+          [...prev, chat].sort((a, b) =>
+            a.nickname.name.localeCompare(b.nickname.name),
+          ),
+        );
+      });
   }, [room]);
 
   const isAnswerComplete = (() => {

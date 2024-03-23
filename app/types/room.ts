@@ -1,6 +1,7 @@
 export interface RoomType {
   id: string;
   created_at: string;
+  nicknames: NicknameType[];
   users: UserType[];
   chats: ChatType[];
   concept: string;
