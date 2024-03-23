@@ -3,36 +3,68 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { Bubble } from "@/app/components/Chat";
 import { Header } from "@/app/components/Header";
-import { j } from "@/app/lib/utils";
-import { useState, type SetStateAction, type Dispatch } from "react";
+import { RotateCcw } from "lucide-react";
+import { useState, type SetStateAction, type Dispatch, useRef } from "react";
+
+type Answer = {
+  nickname: string;
+  isAI: boolean;
+  name?: string;
+}[];
 
 interface OptionProps {
   nickname: string;
   chats: string[];
-  selected: boolean;
-  setSelectedUser: Dispatch<SetStateAction<string | null>>;
+  options: string[];
+  answer: Answer | null;
+  setAnswer: Dispatch<SetStateAction<Answer | null>>;
 }
 
-function Option({ nickname, chats, selected, setSelectedUser }: OptionProps) {
+function Option({ nickname, chats, options, answer, setAnswer }: OptionProps) {
   const [showingChats, setShowingChats] = useState(false);
 
   const toggleChats = () => setShowingChats((prev) => !prev);
 
-  const handleSelect = () => {
-    setSelectedUser(nickname);
+  const guess = answer?.find((a) => a.nickname === nickname);
+
+  const detailRef = useRef<HTMLDetailsElement>(null);
+
+  const closeMenu = () => {
+    if (detailRef.current) {
+      detailRef.current.open = false;
+    }
+  };
+
+  const handleSelectClick = ({
+    nickname,
+    name,
+    isAI,
+  }: {
+    nickname: string;
+    name?: string;
+    isAI: boolean;
+  }) => {
+    setAnswer((prev) => {
+      if (!prev) {
+        return [{ nickname, name, isAI }];
+      }
+
+      if (prev.find((item) => item.nickname === nickname)) {
+        return prev.map((memo) =>
+          memo.nickname === nickname ? { ...memo, name, isAI } : memo,
+        );
+      }
+
+      return [...prev, { nickname, name, isAI }];
+    });
+
+    closeMenu();
   };
 
   return (
-    <div
-      className={j(
-        "flex flex-col gap-2 rounded-xl border-2 p-4",
-        selected
-          ? "border-blue-300 bg-blue-100"
-          : "border-slate-300 bg-slate-100 ",
-      )}
-    >
+    <div className="flex flex-col gap-2 rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
       <div className="flex w-full flex-row flex-wrap items-center justify-between gap-2 text-sm font-medium text-slate-600">
-        <div className="flex flex-col peer-checked:bg-red-300">
+        <div className="flex flex-col">
           <h2 className="text-lg font-semibold text-slate-800">{nickname}</h2>
           <p>메모 안 함 | 현재 1표</p>
         </div>
@@ -40,9 +72,38 @@ function Option({ nickname, chats, selected, setSelectedUser }: OptionProps) {
           <button className="btn btn-ghost" onClick={toggleChats}>
             채팅 {showingChats ? "닫기" : "열기"}
           </button>
-          <button className="btn btn-primary " onClick={handleSelect}>
-            선택
-          </button>
+          <details className="dropdown dropdown-left" ref={detailRef}>
+            <summary className="btn btn-primary flex items-center gap-2">
+              {guess ? (
+                <>
+                  <span>{guess.name ?? "AI"}</span>
+                  <RotateCcw size={20} />
+                </>
+              ) : (
+                <span>선택</span>
+              )}
+            </summary>
+            <ul className="menu dropdown-content z-10 mr-2 w-28 rounded-xl bg-base-100 p-2 font-bold shadow">
+              {options.map((name) => (
+                <li key={name}>
+                  <button
+                    onClick={() =>
+                      handleSelectClick({ nickname, name, isAI: false })
+                    }
+                  >
+                    {name}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => handleSelectClick({ nickname, isAI: true })}
+                >
+                  AI
+                </button>
+              </li>
+            </ul>
+          </details>
         </div>
       </div>
       {showingChats && (
@@ -57,7 +118,7 @@ function Option({ nickname, chats, selected, setSelectedUser }: OptionProps) {
 }
 
 export default function ResultPage() {
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [answer, setAnswer] = useState<Answer | null>(null);
 
   const DATA = [
     {
@@ -78,6 +139,28 @@ export default function ResultPage() {
     },
   ];
 
+  const USERS = ["영헌", "현채", "용준"]; // 내 이름은 빠져야 함
+
+  const isAnswerComplete = (() => {
+    if (!answer) {
+      return false;
+    }
+
+    if (answer.length !== DATA.length) {
+      return false;
+    }
+
+    if (answer.every((a) => a.isAI === false)) {
+      return false;
+    }
+
+    const names = new Set(
+      answer.map((a) => a.name).filter((item) => item !== undefined),
+    );
+
+    return names.size === USERS.length;
+  })();
+
   return (
     <div className="flex h-full flex-col">
       <Header text="~~님이 연 극락 퀴즈쇼" />
@@ -88,14 +171,18 @@ export default function ResultPage() {
               key={user.nickname}
               nickname={user.nickname}
               chats={user.chats}
-              selected={selectedUser === user.nickname}
-              setSelectedUser={setSelectedUser}
+              options={USERS}
+              answer={answer}
+              setAnswer={setAnswer}
             />
           ))}
         </div>
         <BottomSheet>
-          <button className="btn btn-primary w-full" disabled={!selectedUser}>
-            {selectedUser ? `AI는 바로 ${selectedUser}!` : "AI 결정"}
+          <button
+            className="btn btn-primary w-full"
+            disabled={!isAnswerComplete}
+          >
+            이대로 제출
           </button>
         </BottomSheet>
       </div>
