@@ -138,7 +138,7 @@ export function Bubble({
               ? "bg-primary text-white"
               : nickname.name === MODERATOR
                 ? "bg-accent text-white"
-                : "bg-slate-200 text-slate-800",
+                : "bg-zinc-200 text-zinc-800",
           )}
         >
           {text.split("\n").map((line) => (

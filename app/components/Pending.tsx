@@ -261,13 +261,13 @@ export function Pending({ defaultRoom }: PendingProps) {
       <div
         className={j(
           "flex h-full flex-grow flex-col justify-between p-4 pt-16",
-          isAdmin ? "pb-24" : "",
+          isAdmin ? "pb-28" : "",
         )}
       >
-        <div className="flex flex-wrap justify-between gap-4 rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-800">
+        <div className="flex flex-wrap justify-between gap-4 rounded-xl border border-zinc-200 bg-zinc-100 p-4 text-zinc-800">
           <div className="flex flex-col gap-1 overflow-x-auto">
             <span className="font-bold">{url}</span>
-            <div className="text-sm font-semibold text-slate-500">
+            <div className="text-sm font-semibold text-zinc-500">
               친구들이 이 링크로 접속하면 함께 참여할 수 있어요.
             </div>
           </div>
@@ -305,12 +305,12 @@ export function Pending({ defaultRoom }: PendingProps) {
             {room.users.map((user) => (
               <div
                 key={user.id}
-                className="flex items-center justify-center rounded-lg border-4 border-slate-200 bg-slate-100 p-2 text-center font-semibold text-slate-700"
+                className="flex items-center justify-center rounded-lg border-4 border-zinc-200 bg-zinc-100 p-2 text-center font-semibold text-zinc-700"
               >
                 <div
                   className={j(
                     "mr-2 h-2 w-2 rounded-full",
-                    user.isOnline ? "bg-green-500" : "bg-slate-400",
+                    user.isOnline ? "bg-green-500" : "bg-zinc-400",
                   )}
                 />
                 {user.id === userId ? "나" : user.username}

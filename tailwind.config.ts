@@ -31,11 +31,11 @@ const config: Config = {
     themes: [
       {
         light: {
-          primary: defaultColors.blue[600],
+          primary: defaultColors.emerald[500],
           secondary: defaultColors.zinc[600],
           accent: defaultColors.amber[600],
-          neutral: defaultColors.slate[500],
-          "base-100": defaultColors.slate[50],
+          neutral: defaultColors.zinc[500],
+          "base-100": defaultColors.zinc[50],
         },
       },
     ],

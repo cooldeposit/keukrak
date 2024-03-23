@@ -36,7 +36,7 @@ function Card({ nickname, name, type, verbose }: Result) {
   return (
     <li
       className={j(
-        "flex items-center gap-2 rounded-xl border-4 p-3 font-semibold",
+        "flex items-center gap-2 rounded-xl border-[3px] p-3 font-semibold",
         type === "correct"
           ? "border-green-500 bg-green-100 text-green-900"
           : "",
@@ -96,17 +96,17 @@ export default function ResultPage() {
     <div className="flex h-full flex-col">
       <Header text="~~님의 극락 퀴즈쇼" />
       <div className="flex-grow">
-        <div className="flex h-full flex-col gap-4 pb-24 pt-16">
+        <div className="flex h-full flex-col gap-4 pb-28 pt-16">
           <div
             ref={shareRef}
             className="flex -translate-y-6 flex-col gap-4 p-4"
           >
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-2 rounded-xl bg-slate-100 p-4">
+              <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
                 <span className="text-lg font-semibold">당신의 점수</span>
                 <span className="text-3xl font-bold text-primary">100점</span>
               </div>
-              <div className="flex flex-col gap-2 rounded-xl bg-slate-100 p-4">
+              <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
                 <span className="text-lg font-semibold">당신의 순위</span>
                 <span className="text-3xl font-bold text-primary">1등</span>
               </div>
@@ -119,16 +119,16 @@ export default function ResultPage() {
             </ul>
           </div>
           <div className="-translate-y-8 p-4 pt-0">
-            <details className="group collapse bg-slate-200 p-2">
+            <details className="group collapse bg-zinc-200 p-2">
               <summary className="collapse-title !flex w-full flex-row items-center justify-between pr-4">
-                <span className="w-auto font-bold text-slate-800">
+                <span className="w-auto font-bold text-zinc-800">
                   더 자세한 정보
                 </span>
                 <ChevronDown className="flex-none group-open:hidden" />
                 <ChevronUp className="hidden flex-none group-open:block" />
               </summary>
-              <div className="collapse-content flex flex-col gap-2 !p-2 !pt-0 text-slate-700">
-                <div className="flex flex-col gap-2 rounded-lg bg-slate-300 p-4">
+              <div className="collapse-content flex flex-col gap-2 !p-2 !pt-0 text-zinc-700">
+                <div className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4">
                   <h2 className="font-bold">현채의 생각</h2>
                   <div className="grid grid-cols-2 gap-2">
                     <Card name="영헌" nickname="개빡친 무지" type="correct" />
@@ -136,7 +136,7 @@ export default function ResultPage() {
                     <Card name="영헌" nickname="개빡친 무지" type="correct" />
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-slate-300 p-4">
+                <div className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4">
                   <h2 className="font-bold">현채의 생각</h2>
                   <div className="grid grid-cols-2 gap-2">
                     <Card name="영헌" nickname="개빡친 무지" type="correct" />
@@ -144,7 +144,7 @@ export default function ResultPage() {
                     <Card name="영헌" nickname="개빡친 무지" type="correct" />
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-slate-300 p-4">
+                <div className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4">
                   <h2 className="font-bold">현채의 생각</h2>
                   <div className="grid grid-cols-2 gap-2">
                     <Card name="영헌" nickname="개빡친 무지" type="correct" />

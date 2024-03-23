@@ -62,10 +62,10 @@ function Option({ nickname, chats, options, answer, setAnswer }: OptionProps) {
   };
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl border-2 border-slate-300 bg-slate-100 p-4">
-      <div className="flex w-full flex-row flex-wrap items-center justify-between gap-2 text-sm font-medium text-slate-600">
+    <div className="flex flex-col gap-2 rounded-xl border-2 border-zinc-300 bg-zinc-100 p-4">
+      <div className="flex w-full flex-row flex-wrap items-center justify-between gap-2 text-sm font-medium text-zinc-600">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold text-slate-800">{nickname}</h2>
+          <h2 className="text-lg font-semibold text-zinc-800">{nickname}</h2>
           <p>메모 안 함 | 현재 1표</p>
         </div>
         <div className="flex gap-2">
@@ -181,7 +181,7 @@ export default function ResultPage() {
     <div className="flex h-full flex-col">
       <Header text="~~님이 연 극락 퀴즈쇼" />
       <div className="flex-grow">
-        <div className="flex h-full flex-grow flex-col gap-4 p-4 pb-24 pt-16">
+        <div className="flex h-full flex-grow flex-col gap-4 p-4 pb-28 pt-16">
           {DATA.map((user) => (
             <Option
               key={user.nickname}
