@@ -1,15 +1,15 @@
 import { Chat } from "@/app/components/Chat";
 import { Header } from "@/app/components/Header";
 import { Pending } from "@/app/components/Pending";
-import { RoomType } from "../types/room";
 import { redirect } from "next/navigation";
 import { getAdmin } from "../lib/getAdmin";
+import { RoomType } from "../types/room";
 import WSProvider from "./WSProvider";
 
 const fetchRoom = async (id: string) => {
   try {
     const res: RoomType = await (
-      await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/room/${id}`, {
         cache: "no-cache",
       })
     ).json();

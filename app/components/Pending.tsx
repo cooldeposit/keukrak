@@ -1,14 +1,14 @@
 "use client";
 
+import { useSocket } from "@/app/[id]/WSProvider";
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { j } from "@/app/lib/utils";
 import { Check, ClipboardList, Share } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { RoomType } from "../types/room";
-import { getAdmin } from "../lib/getAdmin";
-import { useWebSocket } from "next-ws/client";
-import { MessageType, UserPayloadType } from "../types/message";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { getAdmin } from "../lib/getAdmin";
+import { MessageType, UserPayloadType } from "../types/message";
+import { RoomType } from "../types/room";
 
 interface PendingProps {
   defaultRoom: RoomType;
@@ -23,11 +23,12 @@ export function Pending({ defaultRoom }: PendingProps) {
   const [clicked, setClicked] = useState(false);
   const [isEntered, setIsEntered] = useState(false);
 
+  const { socket } = useSocket();
+
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/${defaultRoom.id}`;
   const admin = getAdmin(room)!;
   const isAdmin = userId === admin.id;
 
-  const ws = useWebSocket();
   const router = useRouter();
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export function Pending({ defaultRoom }: PendingProps) {
 
   const handleReenter = useCallback(async () => {
     const id = localStorage.getItem("userId");
-    await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/room/${room.id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -60,16 +61,18 @@ export function Pending({ defaultRoom }: PendingProps) {
       }),
     });
 
-    ws?.send(
-      JSON.stringify({
-        type: "enter",
-        id: room.id,
-        payload: {
-          userId: id,
-          username: username,
-        },
-      }),
-    );
+    if (socket === null) {
+      return;
+    }
+
+    socket.emit("enter", {
+      type: "enter",
+      id: room.id,
+      payload: {
+        userId: id,
+        username: username,
+      },
+    });
     setUserId(id);
   }, [username, room]);
 
@@ -81,17 +84,19 @@ export function Pending({ defaultRoom }: PendingProps) {
   }, []);
 
   const handleUnmount = async () => {
-    ws?.send(
-      JSON.stringify({
-        type: "leave",
-        id: room.id,
-        payload: {
-          userId: localStorage.getItem("userId")!,
-          username: localStorage.getItem("username")!,
-        },
-      }),
-    );
-    await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}`, {
+    if (socket === null) {
+      return;
+    }
+
+    socket.emit("leave", {
+      type: "leave",
+      id: room.id,
+      payload: {
+        userId: localStorage.getItem("userId")!,
+        username: localStorage.getItem("username")!,
+      },
+    });
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/room/${room.id}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -123,7 +128,7 @@ export function Pending({ defaultRoom }: PendingProps) {
       setLoading(true);
       const res: Response = await (
         await fetch(
-          `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/enter`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/room/${room.id}/enter`,
           {
             method: "POST",
             headers: {
@@ -133,16 +138,19 @@ export function Pending({ defaultRoom }: PendingProps) {
           },
         )
       ).json();
-      ws?.send(
-        JSON.stringify({
-          type: "enter",
-          id: room.id,
-          payload: {
-            userId: res.userId,
-            username: username,
-          },
-        }),
-      );
+
+      if (socket === null) {
+        return;
+      }
+
+      socket.emit("enter", {
+        type: "enter",
+        id: room.id,
+        payload: {
+          userId: res.userId,
+          username: username,
+        },
+      });
       localStorage.setItem("userId", res.userId);
       localStorage.setItem("username", username!);
       setUserId(res.userId);
@@ -170,17 +178,20 @@ export function Pending({ defaultRoom }: PendingProps) {
     try {
       await (
         await fetch(
-          `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/next`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/room/${room.id}/next`,
         )
       ).json();
 
-      ws?.send(
-        JSON.stringify({
-          type: "start",
-          id: room.id,
-          payload: null,
-        }),
-      );
+      if (socket === null) {
+        return;
+      }
+
+      socket.emit("start", {
+        type: "start",
+        id: room.id,
+        payload: null,
+      });
+
       router.refresh();
     } catch (e) {
       console.error(e);
@@ -254,9 +265,18 @@ export function Pending({ defaultRoom }: PendingProps) {
   );
 
   useEffect(() => {
-    ws?.addEventListener("message", onMessage);
-    return () => ws?.removeEventListener("message", onMessage);
-  }, [onMessage, ws]);
+    if (socket === null) {
+      console.log("socket is null");
+      return;
+    }
+    console.log("socket is not null");
+
+    socket.on("message", onMessage);
+
+    return () => {
+      socket.off("message", onMessage);
+    };
+  }, [onMessage, socket]);
 
   return (
     <div className="flex-grow">

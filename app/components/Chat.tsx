@@ -3,18 +3,18 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { j } from "@/app/lib/utils";
 import { RotateCcw } from "lucide-react";
+import { useWebSocket } from "next-ws/client";
+import { useRouter } from "next/navigation";
 import {
+  useCallback,
+  useEffect,
   useRef,
   useState,
   type Dispatch,
   type SetStateAction,
-  useEffect,
-  useCallback,
 } from "react";
-import { NicknameType, RoomType, UserType } from "../types/room";
-import { useWebSocket } from "next-ws/client";
 import { ChatPayloadType, MessageType } from "../types/message";
-import { useRouter } from "next/navigation";
+import { NicknameType, RoomType, UserType } from "../types/room";
 
 type BubbleProps = {
   text: string;
@@ -174,7 +174,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
     }
     const res: UserType & { nickname: NicknameType } = await (
       await fetch(
-        `${process.env.NEXT_PUBLIC_API_HOST}/api/me/${room.id}/${userId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/me/${room.id}/${userId}`,
       )
     ).json();
     setMe(res);
@@ -185,7 +185,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
     if (!me) return;
     try {
       setLoading(true);
-      await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/chat/${room.id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/${room.id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
