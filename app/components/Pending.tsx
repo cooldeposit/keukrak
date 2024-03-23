@@ -3,16 +3,35 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { j } from "@/app/lib/utils";
 import { Check, ClipboardList, Share } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { RoomType } from "../types/room";
+import { getAdmin } from "../lib/getAdmin";
 
 interface PendingProps {
-  users: string[];
-  me: string;
-  adminName: string;
+  room: RoomType;
 }
 
-export function Pending({ users, me, adminName }: PendingProps) {
-  const url = window.location.href;
+export function Pending({ room }: PendingProps) {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const url = `https://${process.env.NEXT_PUBLIC_APP_HOST}/${room.id}`;
+
+  const admin = getAdmin(room)!;
+
+  useEffect(() => {
+    if (typeof localStorage === "undefined") return;
+
+    if (localStorage.getItem("userId") !== null) {
+      const id = localStorage.getItem("userId");
+      setUserId(id);
+      setIsEntered(room.users.some((user) => user.id === id));
+    }
+    if (localStorage.getItem("username") !== null) {
+      setUsername(localStorage.getItem("username")!);
+    }
+  }, []);
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(url);
@@ -22,13 +41,43 @@ export function Pending({ users, me, adminName }: PendingProps) {
   const handleShareClick = () => {
     navigator.share({
       url,
-      text: `${adminName}님이 연 극락 퀴즈쇼에 함께해주세요! ${me}님도 참여하고 있어요.\n\n`,
+      text: `${getAdmin(room)!.username}님이 연 극락 퀴즈쇼에 함께해주세요! ${username ? username + "님도 참여하고 있어요." : ""}\n\n`,
     });
   };
 
-  const [clicked, setClicked] = useState(false);
+  const handleEnter = async () => {
+    interface Response {
+      userId: string;
+    }
+    try {
+      setLoading(true);
+      const res: Response = await (
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/enter`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name: username }),
+          },
+        )
+      ).json();
+      localStorage.setItem("userId", res.userId);
+      localStorage.setItem("username", username!);
+      setUserId(res.userId);
+      setIsEntered(true);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const isAdmin = me === adminName;
+  const isAdmin = userId === admin.id;
+
+  const [clicked, setClicked] = useState(false);
+  const [isEntered, setIsEntered] = useState(false);
 
   return (
     <div className="flex-grow">
@@ -76,41 +125,65 @@ export function Pending({ users, me, adminName }: PendingProps) {
             입장한 사람
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {users.map((name) => (
+            {room.users.map((user) => (
               <div
-                key={name}
+                key={user.id}
                 className="flex items-center justify-center rounded-lg border-4 border-slate-200 bg-slate-100 p-2 text-center font-semibold text-slate-700"
               >
-                {name === me ? "나" : name}
-                {name === adminName && " (방장)"}
+                {user.id === userId ? "나" : user.username}
+                {user.id === admin.id && " (방장)"}
               </div>
             ))}
-            {users.length !== 1 && (
-              <div className="bg-ai rounded-lg p-1 text-center font-semibold text-neutral shadow-sm">
+            {room.users.length !== 1 && (
+              <div className="rounded-lg bg-ai p-1 text-center font-semibold text-neutral shadow-sm">
                 <div className="rounded-md bg-neutral-800 p-2 text-center font-semibold text-neutral-50 shadow-md">
                   … 그리고 AI
                 </div>
               </div>
             )}
           </div>
-          {isAdmin === false && (
-            <div className="mt-2 animate-pulse text-center font-semibold text-neutral">
-              방장({adminName}님)이 시작하기를 기다리고 있어요…
-            </div>
-          )}
+          {isAdmin === false &&
+            (isEntered ? (
+              <div className="mt-2 animate-pulse text-center font-semibold text-neutral">
+                방장({admin.username}님)이 시작하기를 기다리고 있어요…
+              </div>
+            ) : (
+              <div className="flex w-full items-end gap-2">
+                <div className="flex flex-grow flex-col gap-1">
+                  <span className="text-medium ml-1 text-sm font-semibold text-neutral">
+                    당신의 이름
+                  </span>
+                  <input
+                    placeholder="홍길동"
+                    type="text"
+                    className="input input-bordered flex-grow"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleEnter}
+                  disabled={loading || !username}
+                >
+                  {loading ? <div className="loading" /> : "입장"}
+                </button>
+              </div>
+            ))}
         </div>
       </div>
       {isAdmin && (
         <BottomSheet>
           <div className="flex flex-grow flex-col items-center gap-2">
             <span className="text-sm font-semibold text-neutral">
-              {users.length === 1
+              {room.users.length === 1
                 ? "아직 들어온 사람이 없어요. 링크를 친구들에게 보내보세요."
                 : "모두 들어왔으면 극락 퀴즈쇼를 시작해주세요."}
             </span>
             <button
               className="btn btn-primary w-full"
-              disabled={users.length === 1}
+              disabled={room.users.length === 1}
             >
               시작
             </button>
