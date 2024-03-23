@@ -8,7 +8,7 @@ import { RoomType } from "../types/room";
 import { getAdmin } from "../lib/getAdmin";
 import { useWebSocket } from "next-ws/client";
 import { MessageType, UserPayloadType } from "../types/message";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 interface PendingProps {
   defaultRoom: RoomType;
@@ -175,7 +175,14 @@ export function Pending({ defaultRoom }: PendingProps) {
         )
       ).json();
 
-      router.reload();
+      ws?.send(
+        JSON.stringify({
+          type: "start",
+          id: room.id,
+          payload: null,
+        }),
+      );
+      router.refresh();
     } catch (e) {
     } finally {
     }
@@ -237,6 +244,10 @@ export function Pending({ defaultRoom }: PendingProps) {
           return user;
         }),
       }));
+    }
+
+    if (message.type === "start") {
+      router.refresh();
     }
   }, []);
 

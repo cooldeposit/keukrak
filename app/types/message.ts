@@ -11,7 +11,7 @@ export interface UserPayloadType {
 }
 
 export interface MessageType {
-  type: "message" | "enter" | "leave" | "admin";
+  type: "message" | "enter" | "leave" | "admin" | "start";
   id: string;
-  payload: ChatPayloadType | UserPayloadType;
+  payload: ChatPayloadType | UserPayloadType | null;
 }
