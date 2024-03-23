@@ -107,7 +107,15 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
 
   const handleCopyClick = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      if (navigator.clipboard) await navigator.clipboard.writeText(url);
+      else {
+        const textArea = document.createElement("textarea");
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
       setClicked(true);
     } catch (e) {
       console.error(e);
@@ -284,7 +292,7 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
             </div>
           </div>
           <div className="ml-auto flex flex-wrap justify-end gap-2">
-            {navigator.clipboard && (
+            {
               <button
                 className="btn btn-primary"
                 onClick={handleCopyClick}
@@ -302,7 +310,7 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
                   </>
                 )}
               </button>
-            )}
+            }
             {typeof navigator.share === "function" && (
               <button className="btn" onClick={handleShareClick}>
                 <Share className="flex-none" />
