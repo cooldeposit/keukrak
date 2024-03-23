@@ -22,6 +22,7 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
 
   const [clicked, setClicked] = useState(false);
   const [isEntered, setIsEntered] = useState(false);
+  const [loadingStart, setLoadingStart] = useState(false);
 
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/${defaultRoom.id}`;
   const admin = getAdmin(room)!;
@@ -169,6 +170,7 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
 
   const handleStart = async () => {
     try {
+      setLoadingStart(true);
       await (
         await fetch(
           `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/next`,
@@ -185,6 +187,8 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
       router.refresh();
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoadingStart(false);
     }
   };
 
@@ -375,10 +379,10 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
             </span>
             <button
               className="btn btn-primary w-full"
-              disabled={room.users.length === 1}
+              disabled={room.users.length === 1 || loadingStart}
               onClick={handleStart}
             >
-              시작
+              {loadingStart ? <div className="loading text-white" /> : "시작"}
             </button>
           </div>
         </BottomSheet>
