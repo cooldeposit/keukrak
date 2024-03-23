@@ -200,19 +200,6 @@ export function Chat({
         }),
       });
 
-      setRoom((prev) => ({
-        ...prev,
-        chats: [
-          ...prev.chats,
-          {
-            message: input,
-            created_at: new Date(),
-            userId: me.id,
-            nickname: me.nickname,
-          },
-        ],
-      }));
-
       ws.send(
         JSON.stringify({
           type: "message",
