@@ -229,7 +229,7 @@ export default function Poll({
   >([]);
 
   useEffect(() => {
-    // room.chats에서 nickname별로 채팅을 정리
+    console.log(room.chats);
     if (room.chats)
       room.chats
         .filter((c) => c.nickname.name !== MODERATOR)
