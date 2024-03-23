@@ -167,7 +167,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
   const ws = useWebSocket();
   const router = useRouter();
 
-  const getMe = async () => {
+  const getMe = useCallback(async () => {
     const userId = localStorage.getItem("userId");
     if (!userId || room.users.every((user) => user.id !== userId)) {
       router.push("/");
@@ -179,7 +179,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
     ).json();
     setMe(res);
     setCanEnter(true);
-  };
+  }, [room.id, room.users, router]);
 
   const handleSend = async () => {
     if (!me) return;
