@@ -161,7 +161,7 @@ export function Pending({ defaultRoom }: PendingProps) {
         ],
       }));
     } catch (e) {
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -169,7 +169,7 @@ export function Pending({ defaultRoom }: PendingProps) {
 
   const handleStart = async () => {
     try {
-      const res = await (
+      await (
         await fetch(
           `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/next`,
         )
@@ -184,7 +184,7 @@ export function Pending({ defaultRoom }: PendingProps) {
       );
       router.refresh();
     } catch (e) {
-    } finally {
+      console.error(e);
     }
   };
 

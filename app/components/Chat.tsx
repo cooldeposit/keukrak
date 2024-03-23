@@ -2,7 +2,6 @@
 
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { j } from "@/app/lib/utils";
-import type { RequireAtLeastOne } from "@/app/types/util";
 import { RotateCcw } from "lucide-react";
 import {
   useRef,
@@ -142,7 +141,7 @@ export function Bubble({
                 : "bg-slate-200 text-slate-800",
           )}
         >
-          {text.split("\n").map((line, i) => (
+          {text.split("\n").map((line) => (
             <>
               {line}
               <br />
@@ -190,19 +189,16 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
     if (!me) return;
     try {
       setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_HOST}/api/chat/${room.id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: me.id,
-            message: input,
-          }),
+      await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/chat/${room.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          userId: me.id,
+          message: input,
+        }),
+      });
 
       setRoom((prev) => ({
         ...prev,
@@ -229,6 +225,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
       );
       setInput("");
     } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
@@ -270,7 +267,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
   return canEnter ? (
     <div className="flex-grow" ref={chatRef}>
       <div className="flex h-full flex-grow flex-col gap-3 p-4 pb-28 pt-16">
-        {room.chats.map((chat) => (
+        {room.chats.map((chat, i) => (
           <Bubble
             isMine={chat.nickname.name === me?.nickname.name}
             nickname={chat.nickname}
@@ -278,6 +275,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
             memos={memos}
             setMemos={setMemos}
             users={room.users.map((user) => user.username)}
+            key={i}
           />
         ))}
       </div>
