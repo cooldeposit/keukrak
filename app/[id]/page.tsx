@@ -3,11 +3,14 @@ import { Header } from "@/app/components/Header";
 import { Pending } from "@/app/components/Pending";
 import { RoomType } from "../types/room";
 import { redirect } from "next/navigation";
+import { getAdmin } from "../lib/getAdmin";
 
 const fetchRoom = async (id: string) => {
   try {
     const res: RoomType = await (
-      await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${id}`)
+      await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${id}`, {
+        cache: "no-cache",
+      })
     ).json();
 
     return res;
@@ -19,19 +22,13 @@ const fetchRoom = async (id: string) => {
 
 export default async function RoomPage({ params }: { params: { id: string } }) {
   const room = await fetchRoom(params.id);
-  const ADMIN_NAME = room.users.filter((user) => user.isAdmin)[0].username;
+  const admin = getAdmin(room);
 
   return (
     <div className="flex h-full flex-col">
-      <Header text={`${ADMIN_NAME}님이 연 극락 퀴즈쇼`} />
+      <Header text={`${admin!.username}님이 연 극락 퀴즈쇼`} />
       {room.currentQuestion >= 0 && <Chat />}
-      {room.currentQuestion === -1 && (
-        <Pending
-          adminName={ADMIN_NAME}
-          me={"나"}
-          users={room.users.map((user) => user.username)}
-        />
-      )}
+      {room.currentQuestion === -1 && <Pending room={room} />}
     </div>
   );
 }

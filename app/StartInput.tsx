@@ -27,6 +27,7 @@ export default function StartInput() {
       ).json()) as Response;
 
       localStorage.setItem("userId", res.userId);
+      localStorage.setItem("username", username);
       router.push(`/${res.roomId}`);
     } catch (e) {
       console.log(e);
