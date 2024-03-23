@@ -146,10 +146,6 @@ export default function ResultPage() {
       return false;
     }
 
-    if (answer.length !== DATA.length) {
-      return false;
-    }
-
     if (answer.every((a) => a.isAI === false)) {
       return false;
     }
@@ -159,6 +155,26 @@ export default function ResultPage() {
     );
 
     return names.size === USERS.length;
+  })();
+
+  const description = (() => {
+    if (!answer) {
+      return "어떤 닉네임이 누구인지 선택해주세요.";
+    }
+
+    if (answer.every((a) => a.isAI === false)) {
+      return "모든 선택이 정확한지 확인해주세요.";
+    }
+
+    const names = new Set(
+      answer.map((a) => a.name).filter((item) => item !== undefined),
+    );
+
+    if (names.size !== USERS.length) {
+      return "모든 선택이 정확한지 확인해주세요.";
+    }
+
+    return "모든 선택이 완료되었습니다.";
   })();
 
   return (
@@ -178,12 +194,17 @@ export default function ResultPage() {
           ))}
         </div>
         <BottomSheet>
-          <button
-            className="btn btn-primary w-full"
-            disabled={!isAnswerComplete}
-          >
-            이대로 제출
-          </button>
+          <div className="flex flex-grow flex-col items-center gap-2">
+            <span className="text-sm font-semibold text-neutral">
+              {description}
+            </span>
+            <button
+              className="btn btn-primary w-full"
+              disabled={!isAnswerComplete}
+            >
+              이대로 제출
+            </button>
+          </div>
         </BottomSheet>
       </div>
     </div>
