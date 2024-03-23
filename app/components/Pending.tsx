@@ -188,68 +188,71 @@ export function Pending({ defaultRoom }: PendingProps) {
     }
   };
 
-  const onMessage = useCallback(async (event: MessageEvent<Blob>) => {
-    const payload = await event.data.text();
-    const message = JSON.parse(payload) as MessageType;
+  const onMessage = useCallback(
+    async (event: MessageEvent<Blob>) => {
+      const payload = await event.data.text();
+      const message = JSON.parse(payload) as MessageType;
 
-    if (message.id !== room.id) return;
+      if (message.id !== room.id) return;
 
-    if (message.type === "enter") {
-      console.log("enter", message.payload as UserPayloadType);
-      setRoom((room) => {
-        if (
-          room.users.some(
-            (user) => user.id === (message.payload as UserPayloadType).userId,
-          )
-        ) {
-          return {
-            ...room,
-            users: room.users.map((user) => {
-              if (user.id === (message.payload as UserPayloadType).userId) {
-                return {
-                  ...user,
-                  isOnline: true,
-                };
-              }
-              return user;
-            }),
-          };
-        }
-        return {
-          ...room,
-          users: [
-            ...room.users,
-            {
-              id: (message.payload as UserPayloadType).userId,
-              username: (message.payload as UserPayloadType).username,
-              isOnline: true,
-              isAdmin: false,
-            },
-          ],
-        };
-      });
-    }
-
-    if (message.type === "leave") {
-      console.log("leave", message.payload as UserPayloadType);
-      setRoom((room) => ({
-        ...room,
-        users: room.users.map((user) => {
-          if (user.id === (message.payload as UserPayloadType).userId) {
+      if (message.type === "enter") {
+        console.log("enter", message.payload as UserPayloadType);
+        setRoom((room) => {
+          if (
+            room.users.some(
+              (user) => user.id === (message.payload as UserPayloadType).userId,
+            )
+          ) {
             return {
-              ...user,
-              isOnline: false,
+              ...room,
+              users: room.users.map((user) => {
+                if (user.id === (message.payload as UserPayloadType).userId) {
+                  return {
+                    ...user,
+                    isOnline: true,
+                  };
+                }
+                return user;
+              }),
             };
           }
-          return user;
-        }),
-      }));
-    }
+          return {
+            ...room,
+            users: [
+              ...room.users,
+              {
+                id: (message.payload as UserPayloadType).userId,
+                username: (message.payload as UserPayloadType).username,
+                isOnline: true,
+                isAdmin: false,
+              },
+            ],
+          };
+        });
+      }
 
-    if (message.type === "start") {
-      router.refresh();
-    }
-  }, []);
+      if (message.type === "leave") {
+        console.log("leave", message.payload as UserPayloadType);
+        setRoom((room) => ({
+          ...room,
+          users: room.users.map((user) => {
+            if (user.id === (message.payload as UserPayloadType).userId) {
+              return {
+                ...user,
+                isOnline: false,
+              };
+            }
+            return user;
+          }),
+        }));
+      }
+
+      if (message.type === "start") {
+        router.refresh();
+      }
+    },
+    [room.id, router],
+  );
 
   useEffect(() => {
     ws?.addEventListener("message", onMessage);
