@@ -1,6 +1,6 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
-import StartInput from "./StartInput";
 import { CloudFogIcon } from "lucide-react";
+import StartInput from "./StartInput";
 
 export default function HomePage() {
   return (
