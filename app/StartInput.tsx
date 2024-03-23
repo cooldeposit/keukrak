@@ -45,7 +45,7 @@ export default function StartInput() {
         <input
           placeholder="홍길동"
           type="text"
-          className="input input-bordered flex-grow"
+          className="input input-bordered w-full min-w-0 flex-grow"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={loading}
