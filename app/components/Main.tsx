@@ -56,16 +56,17 @@ export default function Main({ room }: { room: RoomType }) {
 
   const [memos, setMemos] = useState<Memo[]>([]);
   const [pollOngoing, setPollOnging] = useState(false);
+  const [hasEnded, setHasEnded] = useState(false);
 
   return (
     ws.current && (
       <>
-        {room.hasEnded === false &&
+        {hasEnded === false &&
           pollOngoing === false &&
           room.currentQuestion === -1 && (
             <Pending defaultRoom={room} ws={ws.current} />
           )}
-        {room.hasEnded === false &&
+        {hasEnded === false &&
           pollOngoing === false &&
           room.currentQuestion >= 0 && (
             <Chat
@@ -77,7 +78,13 @@ export default function Main({ room }: { room: RoomType }) {
             />
           )}
         {pollOngoing && (
-          <Poll defaultRoom={room} ws={ws.current} memos={memos} />
+          <Poll
+            defaultRoom={room}
+            ws={ws.current}
+            memos={memos}
+            hasEnded={() => setHasEnded(true)}
+            pollOngoing={() => setPollOnging(false)}
+          />
         )}
         {hasEnded && (
           <Result defaultRoom={room} ws={ws.current} memos={memos} />

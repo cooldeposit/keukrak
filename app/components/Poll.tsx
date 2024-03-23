@@ -36,6 +36,8 @@ interface PollProps {
   defaultRoom: RoomType;
   ws: WebSocket;
   memos: Memo[];
+  hasEnded: () => void;
+  pollOngoing: () => void;
 }
 
 function Option({
@@ -160,7 +162,13 @@ function Option({
   );
 }
 
-export default function Poll({ defaultRoom, ws, memos }: PollProps) {
+export default function Poll({
+  defaultRoom,
+  ws,
+  memos,
+  hasEnded,
+  pollOngoing,
+}: PollProps) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
   );
@@ -316,16 +324,8 @@ export default function Poll({ defaultRoom, ws, memos }: PollProps) {
                 handleSubmit();
 
                 if (response) {
-                  const result = await response.json();
-
-                  setRoom((prev) => {
-                    return {
-                      ...prev,
-                      pollOngoing: false,
-                      hasEnded: true,
-                      result,
-                    };
-                  });
+                  hasEnded();
+                  pollOngoing();
                 }
               }}
             >
