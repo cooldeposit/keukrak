@@ -233,6 +233,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
     const message: MessageType = JSON.parse(payload);
 
     if (message.type !== "message") return;
+    if (message.id !== room.id) return;
     const content = message.payload as ChatPayloadType;
 
     setRoom((prev) => ({
