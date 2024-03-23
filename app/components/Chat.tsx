@@ -8,8 +8,8 @@ import { useRef, useState, type Dispatch, type SetStateAction } from "react";
 
 type BubbleProps = {
   text: string;
-  memos: Memo[];
-  setMemos: Dispatch<SetStateAction<Memo[]>>;
+  memos?: Memo[];
+  setMemos?: Dispatch<SetStateAction<Memo[]>>;
 } & RequireAtLeastOne<{
   nickname: string;
   isMine: true;
@@ -22,7 +22,13 @@ type Memo = {
 
 const MODERATOR = "사회자";
 
-function Bubble({ nickname, text, isMine, memos, setMemos }: BubbleProps) {
+export function Bubble({
+  nickname,
+  text,
+  isMine,
+  memos,
+  setMemos,
+}: BubbleProps) {
   const detailRef = useRef<HTMLDetailsElement>(null);
 
   const closeMenu = () => {
@@ -32,6 +38,10 @@ function Bubble({ nickname, text, isMine, memos, setMemos }: BubbleProps) {
   };
 
   const handleMemoClick = ({ nickname, name }: Memo) => {
+    if (!setMemos) {
+      return;
+    }
+
     setMemos((prev) => {
       if (prev.find((memo) => memo.nickname === nickname)) {
         return prev.map((memo) =>
@@ -46,12 +56,19 @@ function Bubble({ nickname, text, isMine, memos, setMemos }: BubbleProps) {
   };
 
   const handleRemoveMemoClick = () => {
+    if (!setMemos) {
+      return;
+    }
+
     setMemos((prev) => prev.filter((memo) => memo.nickname !== nickname));
 
     closeMenu();
   };
 
-  const guess = memos.find((memo) => memo.nickname === nickname);
+  const guess =
+    memos === undefined
+      ? undefined
+      : memos.find((memo) => memo.nickname === nickname);
 
   const users = ["찬휘", "희찬"];
 
@@ -60,7 +77,7 @@ function Bubble({ nickname, text, isMine, memos, setMemos }: BubbleProps) {
       {!isMine && (
         <div className="chat-header flex items-center gap-1">
           <div className="mb-1 ml-0.5 text-sm font-medium">{nickname}</div>
-          {nickname !== MODERATOR && (
+          {nickname !== MODERATOR && memos && setMemos && (
             <details className="dropdown dropdown-bottom" ref={detailRef}>
               <summary className="btn btn-xs mb-1 flex items-center gap-1">
                 {guess ? (
