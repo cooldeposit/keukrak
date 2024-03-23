@@ -166,6 +166,8 @@ export function Pending({ defaultRoom }: PendingProps) {
     const payload = await event.data.text();
     const message = JSON.parse(payload) as MessageType;
 
+    if (message.id !== room.id) return;
+
     if (message.type === "enter") {
       console.log("enter", message.payload as UserPayloadType);
       setRoom((room) => {
