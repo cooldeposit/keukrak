@@ -10,6 +10,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        ai: "linear-gradient(135deg, hsla(152, 100%, 50%, 1) 0%, hsla(186, 100%, 69%, 1) 100%);",
+      },
       minHeight: {
         // @ts-expect-error screen can be an array
         screen: ["100vh", "100dvh"],
@@ -31,8 +34,8 @@ const config: Config = {
           primary: defaultColors.blue[600],
           secondary: defaultColors.zinc[600],
           accent: defaultColors.amber[600],
-          neutral: defaultColors.stone[500],
-          "base-100": defaultColors.stone[50],
+          neutral: defaultColors.slate[500],
+          "base-100": defaultColors.slate[50],
         },
       },
     ],
