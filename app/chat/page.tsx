@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useWebSocket } from "next-ws/client";
 import { MessageType } from "../types/message";
 
@@ -38,7 +38,7 @@ export default function Page() {
   }, [onMessage, ws]);
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col justify-end">
+    <div className="flex h-[100dvh] w-full flex-col justify-end">
       <div className="w-full">
         {messages.map((message, i) => (
           <div key={i}>
@@ -47,20 +47,16 @@ export default function Page() {
         ))}
       </div>
 
-      <div className="flex p-2 w-full gap-2">
+      <div className="flex w-full gap-2 p-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          className="w-full rounded border py-1 px-2"
+          className="input input-bordered flex-grow"
           type="text"
           placeholder="Your message"
         />
-        <button
-          type="button"
-          onClick={handleSend}
-          className="rounded bg-black text-white py-1 px-2"
-        >
+        <button type="button" onClick={handleSend} className="btn btn-primary">
           Send
         </button>
       </div>

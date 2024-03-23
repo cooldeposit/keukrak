@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
+import defaultColors from "tailwindcss/colors";
 
 const config: Config = {
   content: [
@@ -8,13 +10,24 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      fontFamily: {
+        sans: ["Wanted\\ Sans", ...fontFamily.sans],
       },
     },
   },
-  plugins: [],
+  plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      {
+        light: {
+          primary: defaultColors.blue[600],
+          secondary: defaultColors.zinc[600],
+          accent: defaultColors.amber[600],
+          neutral: defaultColors.stone[600],
+        },
+      },
+    ],
+  },
 };
+
 export default config;
