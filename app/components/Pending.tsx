@@ -26,6 +26,8 @@ export function Pending({ defaultRoom }: PendingProps) {
   const admin = getAdmin(room)!;
   const isAdmin = userId === admin.id;
 
+  const ws = useWebSocket();
+
   useEffect(() => {
     if (typeof localStorage === "undefined") return;
 
@@ -43,13 +45,39 @@ export function Pending({ defaultRoom }: PendingProps) {
     };
   }, []);
 
-  useEffect(() => {
-    setIsEntered(
-      room.users.some((user) => user.id === localStorage.getItem("userId")),
-    );
-  }, [room]);
+  const handleReenter = useCallback(async () => {
+    const id = localStorage.getItem("userId");
+    await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: id,
+        connect: true,
+      }),
+    });
 
-  const handleUnmount = () => {
+    ws?.send(
+      JSON.stringify({
+        type: "enter",
+        payload: {
+          userId: id,
+          username: username,
+        },
+      }),
+    );
+    setUserId(id);
+  }, [username, room]);
+
+  useEffect(() => {
+    if (room.users.some((user) => user.id === localStorage.getItem("userId"))) {
+      setIsEntered(true);
+      handleReenter();
+    }
+  }, []);
+
+  const handleUnmount = async () => {
     ws?.send(
       JSON.stringify({
         type: "leave",
@@ -60,6 +88,16 @@ export function Pending({ defaultRoom }: PendingProps) {
       }),
     );
     ws?.close();
+    await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        connect: false,
+      }),
+    });
   };
 
   const handleCopyClick = () => {
@@ -123,8 +161,6 @@ export function Pending({ defaultRoom }: PendingProps) {
       setLoading(false);
     }
   };
-
-  const ws = useWebSocket();
 
   const onMessage = useCallback(async (event: MessageEvent<Blob>) => {
     const payload = await event.data.text();
