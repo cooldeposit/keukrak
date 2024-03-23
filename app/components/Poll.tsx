@@ -176,6 +176,24 @@ export default function Poll({
 
   const [room, setRoom] = useState<RoomType>(defaultRoom);
 
+  const fetchRoom = async () => {
+    try {
+      const res: RoomType = await (
+        await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}`, {
+          cache: "no-cache",
+        })
+      ).json();
+
+      setRoom(res);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoom();
+  }, []);
+
   const router = useRouter();
 
   const [answer, setAnswer] = useState<Answer | null>(null);
@@ -239,7 +257,7 @@ export default function Poll({
         ),
       );
     });
-  }, [nicknames]);
+  }, [nicknames, room.chats]);
 
   const isAnswerComplete = (() => {
     if (!answer) {
