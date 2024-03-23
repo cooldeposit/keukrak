@@ -1,19 +1,21 @@
 "use client";
 
 import { BottomSheet } from "@/app/components/BottomSheet";
+import Timer from "@/app/components/Timer";
+import useTimer from "@/app/hooks/useTimer";
 import { j } from "@/app/lib/utils";
 import { RotateCcw } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
+  useCallback,
+  useEffect,
   useRef,
   useState,
   type Dispatch,
   type SetStateAction,
-  useEffect,
-  useCallback,
 } from "react";
-import { NicknameType, RoomType, UserType } from "../types/room";
 import { ChatPayloadType, MessageType } from "../types/message";
-import { useRouter } from "next/navigation";
+import { NicknameType, RoomType, UserType } from "../types/room";
 
 type BubbleProps = {
   text: string;
@@ -185,6 +187,14 @@ export function Chat({
 
   const router = useRouter();
 
+  const { startTimer, nowSeconds, isDone } = useTimer({
+    initialSeconds: 60,
+    repeat: 5,
+  });
+
+  startTimer; // for eslint
+  isDone; // for eslint
+
   const getMe = useCallback(async () => {
     const userId = localStorage.getItem("userId");
     if (!userId || room.users.every((user) => user.id !== userId)) {
@@ -290,7 +300,7 @@ export function Chat({
   return canEnter ? (
     <div className="h-[100dvh] flex-grow overflow-auto pb-36" ref={chatRef}>
       <div className="fixed top-0 z-50 mx-auto w-full max-w-lg items-center p-4 text-right font-bold">
-        00:00
+        <Timer nowSeconds={nowSeconds} />
       </div>
       <div className="flex flex-grow flex-col gap-3 p-4 pt-16">
         {room.chats.map((chat, i) => (
