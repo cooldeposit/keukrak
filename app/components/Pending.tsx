@@ -341,7 +341,7 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
             ))}
             {room.users.length !== 1 && (
               <div className="rounded-lg bg-ai p-1 text-center font-semibold text-neutral shadow-sm">
-                <div className="rounded-md bg-neutral-800 p-2 text-center font-semibold text-neutral-50 shadow-md">
+                <div className="flex h-full items-center justify-center rounded-md bg-neutral-800 p-2 text-center font-semibold text-neutral-50 shadow-md">
                   … 그리고 AI
                 </div>
               </div>
