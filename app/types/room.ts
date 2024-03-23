@@ -18,5 +18,11 @@ export interface UserType {
 export interface ChatType {
   message: string;
   created_at: Date;
-  userId: string;
+  nickname: NicknameType;
+}
+
+export interface NicknameType {
+  icon: string;
+  name: string;
+  color: string;
 }
