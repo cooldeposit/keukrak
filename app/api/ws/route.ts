@@ -1,12 +1,15 @@
 export function SOCKET(
   client: import("ws").WebSocket,
-  request: import("http").IncomingMessage,
+  _request: import("http").IncomingMessage,
   server: import("ws").WebSocketServer
 ) {
   console.log("A client connected!");
 
-  client.on("message", (message) => {
-    client.send(message);
+  client.on("message", (payload) => {
+    server.clients.forEach((receiver) => {
+      if (receiver === client) return;
+      receiver.send(payload);
+    });
   });
 
   client.on("close", () => {
