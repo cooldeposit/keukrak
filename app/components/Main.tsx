@@ -4,6 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { RoomType } from "../types/room";
 import { Chat } from "./Chat";
 import { Pending } from "./Pending";
+import Result from "@/app/components/Result";
+import Poll from "@/app/components/Poll";
+
+export type Memo = {
+  nickname: string;
+  name?: string;
+  isAI: boolean;
+};
 
 export default function Main({ room }: { room: RoomType }) {
   const [socketConnected, setSocketConnected] = useState(false);
@@ -46,14 +54,27 @@ export default function Main({ room }: { room: RoomType }) {
     }
   }, [socketConnected]);
 
+  const [memos, setMemos] = useState<Memo[]>([]);
+
   return (
     ws.current && (
       <>
-        {room.currentQuestion >= 0 && (
-          <Chat defaultRoom={room} ws={ws.current} />
-        )}
         {room.currentQuestion === -1 && (
           <Pending defaultRoom={room} ws={ws.current} />
+        )}
+        {room.currentQuestion >= 0 && (
+          <Chat
+            defaultRoom={room}
+            ws={ws.current}
+            memos={memos}
+            setMemos={setMemos}
+          />
+        )}
+        {room.pollOngoing && (
+          <Poll defaultRoom={room} ws={ws.current} memos={memos} />
+        )}
+        {room.hasEnded && (
+          <Result defaultRoom={room} ws={ws.current} memos={memos} />
         )}
       </>
     )

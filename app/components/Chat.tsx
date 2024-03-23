@@ -23,16 +23,10 @@ type BubbleProps = {
   setMemos?: Dispatch<SetStateAction<Memo[]>>;
   isMine: boolean;
   nickname: NicknameType;
-  users: string[];
+  users?: string[];
 };
 
-type Memo = {
-  nickname: string;
-  name?: string;
-  isAI: boolean;
-};
-
-const MODERATOR = "사회자";
+export const MODERATOR = "사회자";
 
 export function Bubble({
   nickname,
@@ -90,7 +84,7 @@ export function Bubble({
           <div className="mb-1 ml-0.5 whitespace-nowrap text-sm font-medium">
             {nickname.name}
           </div>
-          {nickname.name !== MODERATOR && memos && setMemos && (
+          {nickname.name !== MODERATOR && memos && setMemos && users && (
             <details className="dropdown dropdown-bottom" ref={detailRef}>
               <summary className="btn btn-xs mb-1 flex items-center gap-1">
                 {guess ? (
@@ -168,17 +162,17 @@ export function Bubble({
   );
 }
 
-export function Chat({
-  defaultRoom,
-  ws,
-}: {
+interface ChatProps {
   defaultRoom: RoomType;
   ws: WebSocket;
-}) {
+  memos?: Memo[];
+  setMemos?: Dispatch<SetStateAction<Memo[]>>;
+}
+
+export function Chat({ defaultRoom, ws, memos, setMemos }: ChatProps) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
   );
-  const [memos, setMemos] = useState<Memo[]>([]);
   const [input, setInput] = useState("");
   const [room, setRoom] = useState(defaultRoom);
   const [loading, setLoading] = useState(false);
@@ -244,11 +238,19 @@ export function Chat({
   };
 
   const onMessage = useCallback(
-    async (event: MessageEvent) => {
-      const payload = event.data as string;
+    async (event: MessageEvent<Blob>) => {
+      const payload = await event.data.text();
       const message: MessageType = JSON.parse(payload);
 
+      if (message.type === "poll") {
+        setRoom((prev) => ({
+          ...prev,
+          pollOngoing: true,
+        }));
+      }
+
       if (message.type !== "message") return;
+
       if (message.id !== room.id) return;
       const content = message.payload as ChatPayloadType;
 

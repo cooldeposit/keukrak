@@ -6,6 +6,22 @@ export interface RoomType {
   concept: string;
   questions: string[];
   currentQuestion: number;
+  pollOngoing?: boolean;
+  hasEnded?: boolean;
+  result: {
+    userId: string;
+    nickname: NicknameType;
+    score: number;
+    result: {
+      guessAI: boolean;
+      aiNickname: boolean;
+      friends: {
+        name: string;
+        nickname: string;
+        correct: boolean;
+      }[];
+    };
+  }[];
 }
 
 export interface UserType {
