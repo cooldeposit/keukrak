@@ -1,5 +1,7 @@
-export interface ChatType {
-  user: string;
+import { NicknameType } from "./room";
+
+export interface ChatPayloadType {
+  nickname: NicknameType;
   content: string;
 }
 
@@ -11,5 +13,5 @@ export interface UserPayloadType {
 export interface MessageType {
   type: "message" | "enter" | "leave" | "admin";
   id: string;
-  payload: ChatType | UserPayloadType;
+  payload: ChatPayloadType | UserPayloadType;
 }

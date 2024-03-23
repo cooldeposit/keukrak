@@ -4,16 +4,26 @@ import { BottomSheet } from "@/app/components/BottomSheet";
 import { j } from "@/app/lib/utils";
 import type { RequireAtLeastOne } from "@/app/types/util";
 import { RotateCcw } from "lucide-react";
-import { useRef, useState, type Dispatch, type SetStateAction } from "react";
+import {
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useCallback,
+} from "react";
+import { NicknameType, RoomType, UserType } from "../types/room";
+import { useWebSocket } from "next-ws/client";
+import { ChatPayloadType, MessageType } from "../types/message";
 
 type BubbleProps = {
   text: string;
   memos?: Memo[];
   setMemos?: Dispatch<SetStateAction<Memo[]>>;
-} & RequireAtLeastOne<{
-  nickname: string;
-  isMine: true;
-}>;
+  isMine: boolean;
+  nickname: NicknameType;
+  users: string[];
+};
 
 type Memo = {
   nickname: string;
@@ -28,6 +38,7 @@ export function Bubble({
   isMine,
   memos,
   setMemos,
+  users,
 }: BubbleProps) {
   const detailRef = useRef<HTMLDetailsElement>(null);
 
@@ -60,7 +71,7 @@ export function Bubble({
       return;
     }
 
-    setMemos((prev) => prev.filter((memo) => memo.nickname !== nickname));
+    setMemos((prev) => prev.filter((memo) => memo.nickname !== nickname?.name));
 
     closeMenu();
   };
@@ -68,16 +79,14 @@ export function Bubble({
   const guess =
     memos === undefined
       ? undefined
-      : memos.find((memo) => memo.nickname === nickname);
-
-  const users = ["찬휘", "희찬"];
+      : memos.find((memo) => memo.nickname === nickname?.name);
 
   return (
     <div className={`chat ${isMine ? "chat-end" : "chat-start"}`}>
       {!isMine && (
         <div className="chat-header flex items-center gap-1">
-          <div className="mb-1 ml-0.5 text-sm font-medium">{nickname}</div>
-          {nickname !== MODERATOR && memos && setMemos && (
+          <div className="mb-1 ml-0.5 text-sm font-medium">{nickname.name}</div>
+          {nickname.name !== MODERATOR && memos && setMemos && (
             <details className="dropdown dropdown-bottom" ref={detailRef}>
               <summary className="btn btn-xs mb-1 flex items-center gap-1">
                 {guess ? (
@@ -92,7 +101,11 @@ export function Bubble({
               <ul className="menu dropdown-content z-10 w-28 rounded-xl bg-base-100 p-2 font-bold shadow">
                 {users.map((name) => (
                   <li key={name}>
-                    <button onClick={() => handleMemoClick({ nickname, name })}>
+                    <button
+                      onClick={() =>
+                        handleMemoClick({ nickname: nickname.name, name })
+                      }
+                    >
                       {name}
                     </button>
                   </li>
@@ -106,53 +119,144 @@ export function Bubble({
         </div>
       )}
       <div
-        className={j(
-          "chat-bubble pt-2.5",
-          isMine
-            ? "bg-primary text-white"
-            : nickname === MODERATOR
-              ? "bg-accent text-white"
-              : "bg-slate-200 text-slate-800",
-        )}
+        className={j("flex items-end gap-4", isMine ? "flex-row-reverse" : "")}
       >
-        {text}
+        <div
+          className="flex h-6 w-6 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: nickname.color,
+          }}
+        >
+          <span className="text-xs font-bold">{nickname.icon}</span>
+        </div>
+        <div
+          className={j(
+            "chat-bubble pt-2.5",
+            isMine
+              ? "bg-primary text-white"
+              : nickname.name === MODERATOR
+                ? "bg-accent text-white"
+                : "bg-slate-200 text-slate-800",
+          )}
+        >
+          {text}
+        </div>
       </div>
     </div>
   );
 }
 
-export function Chat() {
+export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
+  const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
+    null,
+  );
   const [memos, setMemos] = useState<Memo[]>([]);
+  const [input, setInput] = useState("");
+  const [room, setRoom] = useState(defaultRoom);
+  const [loading, setLoading] = useState(false);
+
+  const ws = useWebSocket();
+
+  const getMe = async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+    const res: UserType & { nickname: NicknameType } = await (
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/me/${room.id}/${userId}`,
+      )
+    ).json();
+    setMe(res);
+  };
+
+  useEffect(() => {
+    getMe();
+  }, []);
+
+  const handleSend = async () => {
+    if (!me) return;
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/chat/${room.id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: me.id,
+            message: input,
+          }),
+        },
+      );
+
+      setRoom((prev) => ({
+        ...prev,
+        chats: [
+          ...prev.chats,
+          {
+            message: input,
+            created_at: new Date(),
+            userId: me.id,
+            nickname: me.nickname,
+          },
+        ],
+      }));
+
+      ws?.send(
+        JSON.stringify({
+          type: "message",
+          id: room.id,
+          payload: {
+            nickname: me.nickname,
+            content: input,
+          },
+        }),
+      );
+      setInput("");
+    } catch (e) {
+    } finally {
+      setLoading(false);
+    }
+  };
+  const onMessage = useCallback(async (event: MessageEvent<Blob>) => {
+    const payload = await event.data.text();
+    const message: MessageType = JSON.parse(payload);
+
+    if (message.type !== "message") return;
+    const content = message.payload as ChatPayloadType;
+
+    setRoom((prev) => ({
+      ...prev,
+      chats: [
+        ...prev.chats,
+        {
+          message: content.content,
+          created_at: new Date(),
+          nickname: content.nickname,
+        },
+      ],
+    }));
+  }, []);
+
+  useEffect(() => {
+    ws?.addEventListener("message", onMessage);
+    return () => ws?.removeEventListener("message", onMessage);
+  }, [onMessage, ws]);
 
   return (
     <div className="flex-grow">
       <div className="flex h-full flex-grow flex-col gap-3 p-4 pb-28 pt-16">
-        <Bubble isMine text="안녕하세요?" memos={memos} setMemos={setMemos} />
-        <Bubble
-          nickname="개빡친 라이언"
-          text="안녕하세요?"
-          memos={memos}
-          setMemos={setMemos}
-        />
-        <Bubble
-          nickname="사회자"
-          text="안녕하세요?"
-          memos={memos}
-          setMemos={setMemos}
-        />
-        <Bubble isMine text="안녕하세요?" memos={memos} setMemos={setMemos} />
-        <Bubble
-          nickname="뿡뿡이"
-          text="안녕하세요?"
-          memos={memos}
-          setMemos={setMemos}
-        />
-        <Bubble
-          nickname="개빡친 라이언"
-          text="안녕하세요?"
-          memos={memos}
-          setMemos={setMemos}
-        />
+        {room.chats.map((chat) => (
+          <Bubble
+            isMine={chat.nickname.name === me?.nickname.name}
+            nickname={chat.nickname}
+            text={chat.message}
+            memos={memos}
+            setMemos={setMemos}
+            users={room.users.map((user) => user.username)}
+          />
+        ))}
       </div>
       <BottomSheet>
         <div className="flex w-full items-end gap-2">
@@ -164,9 +268,17 @@ export function Chat() {
               placeholder="안녕하세요?"
               type="text"
               className="input input-bordered flex-grow"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
             />
           </div>
-          <button className="btn btn-primary">전송</button>
+          <button
+            className="btn btn-primary"
+            onClick={handleSend}
+            disabled={loading}
+          >
+            전송
+          </button>
         </div>
       </BottomSheet>
     </div>
