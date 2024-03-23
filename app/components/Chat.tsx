@@ -220,8 +220,8 @@ export function Chat({
   };
 
   const onMessage = useCallback(
-    async (event: MessageEvent<Blob>) => {
-      const payload = await event.data.text();
+    async (event: MessageEvent) => {
+      const payload = event.data as string;
       const message: MessageType = JSON.parse(payload);
 
       if (message.type !== "message") return;

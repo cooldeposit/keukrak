@@ -187,8 +187,9 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
   };
 
   const onMessage = useCallback(
-    async (event: MessageEvent<Blob>) => {
-      const payload = await event.data.text();
+    async (event: MessageEvent) => {
+      console.log(event);
+      const payload = event.data as string;
       const message = JSON.parse(payload) as MessageType;
 
       if (message.id !== room.id) return;
