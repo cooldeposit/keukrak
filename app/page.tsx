@@ -1,4 +1,5 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
+import StartInput from "./StartInput";
 
 export default function HomePage() {
   return (
@@ -13,19 +14,7 @@ export default function HomePage() {
         </div>
       </div>
       <BottomSheet>
-        <div className="flex w-full items-end gap-2">
-          <div className="flex flex-grow flex-col gap-1">
-            <span className="text-medium ml-1 text-sm font-semibold text-neutral">
-              당신의 이름
-            </span>
-            <input
-              placeholder="홍길동"
-              type="text"
-              className="input input-bordered flex-grow"
-            />
-          </div>
-          <button className="btn btn-primary">시작</button>
-        </div>
+        <StartInput />
       </BottomSheet>
     </div>
   );
