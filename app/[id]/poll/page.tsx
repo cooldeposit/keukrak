@@ -37,10 +37,10 @@ function Option({ nickname, chats, selected, setSelectedUser }: OptionProps) {
           <p>메모 안 함 | 현재 1표</p>
         </div>
         <div className="flex gap-2">
-          <button className="btn btn-ghost btn-sm" onClick={toggleChats}>
+          <button className="btn btn-ghost" onClick={toggleChats}>
             채팅 {showingChats ? "닫기" : "열기"}
           </button>
-          <button className="btn btn-primary btn-sm" onClick={handleSelect}>
+          <button className="btn btn-primary " onClick={handleSelect}>
             선택
           </button>
         </div>
