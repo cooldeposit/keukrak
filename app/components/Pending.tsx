@@ -91,7 +91,6 @@ export function Pending({ defaultRoom }: PendingProps) {
         },
       }),
     );
-    ws?.close();
     await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}`, {
       method: "POST",
       headers: {
