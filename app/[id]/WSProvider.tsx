@@ -8,7 +8,13 @@ export default function WSProvider({
   children: React.ReactNode;
 }) {
   return (
-    <WebSocketProvider url={`ws://${process.env.NEXT_PUBLIC_APP_HOST}/api/ws`}>
+    <WebSocketProvider
+      url={`${process.env.NODE_ENV === "production" ? "wss" : "ws"}://${process.env.NEXT_PUBLIC_APP_HOST}/api/ws${
+        process.env.NODE_ENV === "production"
+          ? "/socket.io/?EIO=3&transport=websocket"
+          : ""
+      }`}
+    >
       {children}
     </WebSocketProvider>
   );
