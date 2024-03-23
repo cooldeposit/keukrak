@@ -105,9 +105,13 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
     });
   };
 
-  const handleCopyClick = () => {
-    navigator.clipboard.writeText(url);
-    setClicked(true);
+  const handleCopyClick = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setClicked(true);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleShareClick = () => {
@@ -280,23 +284,25 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
             </div>
           </div>
           <div className="ml-auto flex flex-wrap justify-end gap-2">
-            <button
-              className="btn btn-primary"
-              onClick={handleCopyClick}
-              disabled={clicked}
-            >
-              {clicked ? (
-                <>
-                  <Check className="flex-none" />
-                  <span>링크 복사됨</span>
-                </>
-              ) : (
-                <>
-                  <ClipboardList className="flex-none" />
-                  <span>링크 복사</span>
-                </>
-              )}
-            </button>
+            {navigator.clipboard && (
+              <button
+                className="btn btn-primary"
+                onClick={handleCopyClick}
+                disabled={clicked}
+              >
+                {clicked ? (
+                  <>
+                    <Check className="flex-none" />
+                    <span>링크 복사됨</span>
+                  </>
+                ) : (
+                  <>
+                    <ClipboardList className="flex-none" />
+                    <span>링크 복사</span>
+                  </>
+                )}
+              </button>
+            )}
             {typeof navigator.share === "function" && (
               <button className="btn" onClick={handleShareClick}>
                 <Share className="flex-none" />
