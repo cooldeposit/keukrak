@@ -16,6 +16,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
+import { getAdmin } from "../lib/getAdmin";
 
 type Answer = {
   nickname: string;
@@ -295,7 +296,7 @@ export default function Poll({
 
   return (
     <div className="flex h-full flex-col">
-      <Header text="~~님이 연 극락 퀴즈쇼" />
+      <Header text={`${getAdmin(room)}님이 연 극락 퀴즈쇼`} />
       <div className="flex-grow">
         <div className="flex h-full flex-grow flex-col gap-4 p-4 pb-28 pt-16">
           {organizedChats.map((organizedChat) => (
