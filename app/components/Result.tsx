@@ -14,36 +14,45 @@ import {
 } from "lucide-react";
 import { josa } from "@toss/hangul";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
+import type { NicknameType, RoomType, UserType } from "@/app/types/room";
+import type { Memo } from "@/app/components/Main";
+import { MODERATOR } from "@/app/components/Chat";
 
-interface Result {
+interface Card {
   name: string;
   nickname: string;
-  type: "correct" | "wrong";
+  correct: boolean;
   verbose?: boolean;
 }
 
-function Card({ nickname, name, type, verbose }: Result) {
-  const nicknameJosa =
-    type === "correct" ? josa(nickname, "이/가") : josa(nickname, "은/는");
+interface ResultProps {
+  defaultRoom: RoomType;
+  ws: WebSocket;
+  memos: Memo[];
+}
+
+function Card({ nickname, name, correct, verbose }: Card) {
+  const nicknameJosa = correct
+    ? josa(nickname, "이/가")
+    : josa(nickname, "은/는");
   const nameJosa = josa(name, "이/가");
 
   const text = verbose
-    ? `${nicknameJosa} ${nameJosa} ${type === "correct" ? "맞았어요." : "아니었어요."}`
+    ? `${nicknameJosa} ${nameJosa} ${correct ? "맞았어요." : "아니었어요."}`
     : `${nickname} → ${name}`;
 
   return (
     <li
       className={j(
         "flex items-center gap-2 rounded-xl border-[3px] p-3 font-semibold",
-        type === "correct"
+        correct
           ? "border-green-500 bg-green-100 text-green-900"
-          : "",
-        type === "wrong" ? "border-red-500 bg-red-100 text-red-900" : "",
+          : "border-red-500 bg-red-100 text-red-900",
       )}
     >
-      {type === "correct" ? (
+      {correct ? (
         <CheckCircle className="flex-none" />
       ) : (
         <X className="flex-none" />
@@ -53,7 +62,7 @@ function Card({ nickname, name, type, verbose }: Result) {
   );
 }
 
-export default function ResultPage() {
+export default function Result({ defaultRoom, memos }: ResultProps) {
   const shareRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
@@ -64,7 +73,30 @@ export default function ResultPage() {
     router.push("/");
   };
 
-  const USERS = ["영헌", "현채", "찬휘"];
+  const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
+    null,
+  );
+
+  const getMe = useCallback(async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId || defaultRoom.users.every((user) => user.id !== userId)) {
+      router.push("/");
+    }
+    const res: UserType & { nickname: NicknameType } = await (
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/me/${defaultRoom.id}/${userId}`,
+      )
+    ).json();
+    setMe(res);
+  }, [defaultRoom.id, router]);
+
+  useEffect(() => {
+    getMe();
+  }, [getMe]);
+
+  const users = defaultRoom.users
+    .map((user) => user.username)
+    .filter((user) => user !== me?.username);
 
   const handleShareClick = () => {
     if (!shareRef.current) return;
@@ -85,16 +117,32 @@ export default function ResultPage() {
       }
 
       navigator.share({
-        text: `${USERS.join(", ")}과 함께한 극락 퀴즈쇼 결과를 공유합니다.\n\n`,
+        text: `${users.join(", ")}과 함께한 극락 퀴즈쇼 결과를 공유합니다.\n\n`,
         url: `${window.location.origin}`,
         files: [dataURLtoFile(dataUrl, filename)],
       });
     });
   };
 
+  const admin = defaultRoom.users.find((user) => user.isAdmin);
+
+  const { result } = defaultRoom;
+
+  const myScore = result.find((r) => r.userId === me?.id)?.score;
+
+  const ranking = result
+    .map((r) => ({ userId: r.userId, score: r.score }))
+    .sort((a, b) => b.score - a.score);
+
+  const myRank = ranking.findIndex((r) => r.userId === me?.id) + 1;
+
+  const myResult = result.find((r) => r.userId === me?.id);
+
+  const friends = myResult?.result.friends;
+
   return (
     <div className="flex h-full flex-col">
-      <Header text="~~님의 극락 퀴즈쇼" />
+      <Header text={`${admin?.username}님의 극락 퀴즈쇼"`} />
       <div className="flex-grow">
         <div className="flex h-full flex-col gap-4 pb-28 pt-16">
           <div
@@ -104,18 +152,33 @@ export default function ResultPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
                 <span className="text-lg font-semibold">당신의 점수</span>
-                <span className="text-3xl font-bold text-primary">100점</span>
+                <span className="text-3xl font-bold text-primary">
+                  {myScore}점
+                </span>
               </div>
               <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
                 <span className="text-lg font-semibold">당신의 순위</span>
-                <span className="text-3xl font-bold text-primary">1등</span>
+                <span className="text-3xl font-bold text-primary">
+                  {myRank}등
+                </span>
               </div>
             </div>
             <ul className="flex flex-col gap-2">
-              <Card name="영헌" nickname="개빡친 무지" type="correct" verbose />
-              <Card name="AI" nickname="개빡친 무지" type="wrong" verbose />
-              <Card name="현채" nickname="개빡친 무지" type="correct" verbose />
-              <Card name="찬휘" nickname="개빡친 무지" type="correct" verbose />
+              {friends?.map((friend) => (
+                <Card
+                  key={friend.name}
+                  name={friend.name}
+                  nickname={friend.nickname}
+                  correct={friend.correct}
+                  verbose
+                />
+              ))}
+              <Card
+                name="AI"
+                nickname="개빡친 무지"
+                correct={myResult?.result.guessAI ?? false}
+                verbose
+              />
             </ul>
           </div>
           <div className="-translate-y-8 p-4 pt-0">
@@ -128,30 +191,28 @@ export default function ResultPage() {
                 <ChevronUp className="hidden flex-none group-open:block" />
               </summary>
               <div className="collapse-content flex flex-col gap-2 !p-2 !pt-0 text-zinc-700">
-                <div className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4">
-                  <h2 className="font-bold">현채의 생각</h2>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
-                    <Card name="영헌" nickname="개빡친 무지" type="wrong" />
-                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4">
-                  <h2 className="font-bold">현채의 생각</h2>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
-                    <Card name="영헌" nickname="개빡친 무지" type="wrong" />
-                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4">
-                  <h2 className="font-bold">현채의 생각</h2>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
-                    <Card name="영헌" nickname="개빡친 무지" type="wrong" />
-                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
-                  </div>
-                </div>
+                {users.map((user) => {
+                  const userResult = result.find((r) => r.userId === user);
+
+                  return (
+                    <div
+                      key={user}
+                      className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4"
+                    >
+                      <h2 className="font-bold">{user}의 생각</h2>
+                      <div className="grid grid-cols-2 gap-2">
+                        {userResult?.result.friends.map((friend) => (
+                          <Card
+                            key={friend.name}
+                            name={friend.name}
+                            nickname={friend.nickname}
+                            correct={friend.correct}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </details>
           </div>
