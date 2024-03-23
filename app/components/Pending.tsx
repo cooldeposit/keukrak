@@ -261,7 +261,7 @@ export function Pending({ defaultRoom }: PendingProps) {
       <div
         className={j(
           "flex h-full flex-grow flex-col justify-between p-4 pt-16",
-          isAdmin ? "pb-28" : "",
+          isAdmin ? "pb-24" : "",
         )}
       >
         <div className="flex flex-wrap justify-between gap-4 rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-800">
