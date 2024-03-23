@@ -236,28 +236,28 @@ export default function Poll({
     setNicknames(
       room.chats.map((c) => c.nickname).filter((n) => n.name !== MODERATOR),
     );
-  }, [room]);
+    room.chats
+      .map((c) => c.nickname)
+      .filter((n) => n.name !== MODERATOR)
+      .forEach((nickname) => {
+        const chat = {
+          nickname,
+          chats: [] as string[],
+        };
 
-  useEffect(() => {
-    nicknames.forEach((nickname) => {
-      const chat = {
-        nickname,
-        chats: [] as string[],
-      };
+        room.chats.forEach((c) => {
+          if (c.nickname.name === nickname.name) {
+            chat.chats.push(c.message);
+          }
+        });
 
-      room.chats.forEach((c) => {
-        if (c.nickname.name === nickname.name) {
-          chat.chats.push(c.message);
-        }
+        setOrganizedChats((prev) =>
+          [...prev, chat].sort((a, b) =>
+            a.nickname.name.localeCompare(b.nickname.name),
+          ),
+        );
       });
-
-      setOrganizedChats((prev) =>
-        [...prev, chat].sort((a, b) =>
-          a.nickname.name.localeCompare(b.nickname.name),
-        ),
-      );
-    });
-  }, [nicknames, room.chats]);
+  }, [room]);
 
   const isAnswerComplete = (() => {
     if (!answer) {
