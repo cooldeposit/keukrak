@@ -16,6 +16,7 @@ import {
 } from "react";
 import { ChatPayloadType, MessageType } from "../types/message";
 import { NicknameType, RoomType, UserType } from "../types/room";
+import type { Memo } from "@/app/components/Main";
 
 type BubbleProps = {
   text: string;
@@ -162,14 +163,17 @@ export function Bubble({
   );
 }
 
-interface ChatProps {
+export function Chat({
+  defaultRoom,
+  ws,
+  memos,
+  setMemos,
+}: {
   defaultRoom: RoomType;
   ws: WebSocket;
-  memos?: Memo[];
-  setMemos?: Dispatch<SetStateAction<Memo[]>>;
-}
-
-export function Chat({ defaultRoom, ws, memos, setMemos }: ChatProps) {
+  memos: Memo[];
+  setMemos: Dispatch<SetStateAction<Memo[]>>;
+}) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
   );
@@ -186,8 +190,32 @@ export function Chat({ defaultRoom, ws, memos, setMemos }: ChatProps) {
     repeat: 5,
   });
 
-  startTimer; // for eslint
-  isDone; // for eslint
+  useEffect(() => {
+    async function fetchData() {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/next`,
+      );
+    }
+
+    if (nowSeconds === 0) {
+      fetchData();
+    }
+  }, [nowSeconds, room.id]);
+
+  useEffect(() => {
+    if (isDone) {
+      setRoom((prev) => ({
+        ...prev,
+        pollOngoing: true,
+      }));
+    }
+  }, [isDone]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      startTimer();
+    }, 5000);
+  }, [startTimer]);
 
   const getMe = useCallback(async () => {
     const userId = localStorage.getItem("userId");
@@ -238,8 +266,8 @@ export function Chat({ defaultRoom, ws, memos, setMemos }: ChatProps) {
   };
 
   const onMessage = useCallback(
-    async (event: MessageEvent<Blob>) => {
-      const payload = await event.data.text();
+    async (event: MessageEvent) => {
+      const payload = event.data as string;
       const message: MessageType = JSON.parse(payload);
 
       if (message.type === "poll") {
@@ -252,6 +280,7 @@ export function Chat({ defaultRoom, ws, memos, setMemos }: ChatProps) {
       if (message.type !== "message") return;
 
       if (message.id !== room.id) return;
+
       const content = message.payload as ChatPayloadType;
 
       setRoom((prev) => ({
@@ -295,15 +324,22 @@ export function Chat({ defaultRoom, ws, memos, setMemos }: ChatProps) {
     scrollToBottom();
   }, [canEnter]);
 
-  useEffect(() => {
-    const id = setInterval(() => {}, 1000);
-  }, []);
-
   return canEnter ? (
     <div className="h-[100dvh] flex-grow overflow-auto pb-36" ref={chatRef}>
       <div className="fixed top-0 z-50 mx-auto w-full max-w-lg items-center p-4 text-right font-bold">
         <Timer nowSeconds={nowSeconds} />
       </div>
+      <button
+        className="hover:opacity-1 fixed left-1/2 top-0 z-50 -translate-x-1/2 p-4 text-sm font-bold text-white opacity-20"
+        onClick={() => {
+          setRoom((prev) => ({
+            ...prev,
+            pollOngoing: true,
+          }));
+        }}
+      >
+        투표 시작
+      </button>
       <div className="flex flex-grow flex-col gap-3 p-4 pt-16">
         {room.chats.map((chat, i) => (
           <Bubble
@@ -312,7 +348,11 @@ export function Chat({ defaultRoom, ws, memos, setMemos }: ChatProps) {
             text={chat.message}
             memos={memos}
             setMemos={setMemos}
-            users={room.users.map((user) => user.username)}
+            users={
+              room.users
+                .filter((user) => user.id !== me?.id)
+                .map((user) => user.username) ?? []
+            }
             key={i}
           />
         ))}

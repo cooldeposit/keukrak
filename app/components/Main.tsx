@@ -59,17 +59,21 @@ export default function Main({ room }: { room: RoomType }) {
   return (
     ws.current && (
       <>
-        {room.currentQuestion === -1 && (
-          <Pending defaultRoom={room} ws={ws.current} />
-        )}
-        {room.currentQuestion >= 0 && (
-          <Chat
-            defaultRoom={room}
-            ws={ws.current}
-            memos={memos}
-            setMemos={setMemos}
-          />
-        )}
+        {room.hasEnded === false &&
+          room.pollOngoing === false &&
+          room.currentQuestion === -1 && (
+            <Pending defaultRoom={room} ws={ws.current} />
+          )}
+        {room.hasEnded === false &&
+          room.pollOngoing === false &&
+          room.currentQuestion >= 0 && (
+            <Chat
+              defaultRoom={room}
+              ws={ws.current}
+              memos={memos}
+              setMemos={setMemos}
+            />
+          )}
         {room.pollOngoing && (
           <Poll defaultRoom={room} ws={ws.current} memos={memos} />
         )}
