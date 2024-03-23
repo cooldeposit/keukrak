@@ -297,7 +297,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
         <div className="flex w-full items-end gap-2">
           <div className="flex flex-grow flex-col gap-1">
             <span className="text-medium ml-1 text-sm font-semibold text-neutral">
-              보낼 메시지
+              {room.concept}. “{room.questions[room.currentQuestion]}”
             </span>
             <input
               placeholder="안녕하세요?"
