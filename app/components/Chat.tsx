@@ -188,7 +188,7 @@ export function Chat({
   const router = useRouter();
 
   const { startTimer, nowSeconds, isDone } = useTimer({
-    initialSeconds: 60,
+    initialSeconds: 30,
     repeat: 5,
   });
 
