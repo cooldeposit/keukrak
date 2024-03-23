@@ -3,7 +3,3 @@
 @tailwind utilities;
 
 @import url("https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css");
-
-html {
-  font-family: "Wanted Sans", sans-serif;
-}
