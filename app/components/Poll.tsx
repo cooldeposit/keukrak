@@ -230,24 +230,21 @@ export default function Poll({
 
   useEffect(() => {
     if (room.nicknames)
-      room.nicknames.forEach((nickname) => {
-        const chat = {
-          nickname,
-          chats: [] as string[],
-        };
-
-        room.chats.forEach((c) => {
-          if (c.nickname.name === nickname.name) {
-            chat.chats.push(c.message);
-          }
-        });
-
-        setOrganizedChats((prev) =>
-          [...prev, chat].sort((a, b) =>
-            a.nickname.name.localeCompare(b.nickname.name),
-          ),
-        );
-      });
+      setOrganizedChats(
+        room.nicknames.map(
+          (
+            nickname: NicknameType,
+          ): {
+            nickname: NicknameType;
+            chats: string[];
+          } => ({
+            nickname,
+            chats: room.chats
+              .filter((c) => c.nickname.name === nickname.name)
+              .map((c) => c.message),
+          }),
+        ),
+      );
   }, [room]);
 
   const isAnswerComplete = (() => {
