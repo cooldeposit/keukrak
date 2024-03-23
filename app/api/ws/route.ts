@@ -1,7 +1,7 @@
 export function SOCKET(
   client: import("ws").WebSocket,
   _request: import("http").IncomingMessage,
-  server: import("ws").WebSocketServer
+  server: import("ws").WebSocketServer,
 ) {
   console.log("A client connected!");
 
@@ -15,4 +15,7 @@ export function SOCKET(
   client.on("close", () => {
     console.log("A client disconnected!");
   });
+
+  client.send("Hello, client!");
+  return "";
 }
