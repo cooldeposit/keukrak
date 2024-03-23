@@ -283,8 +283,15 @@ export function Chat({
     scrollToBottom();
   }, [canEnter]);
 
+  useEffect(() => {
+    const id = setInterval(() => {}, 1000);
+  }, []);
+
   return canEnter ? (
     <div className="h-[100dvh] flex-grow overflow-auto pb-36" ref={chatRef}>
+      <div className="fixed top-0 z-50 mx-auto w-full max-w-lg items-center p-4 text-right font-bold">
+        00:00
+      </div>
       <div className="flex flex-grow flex-col gap-3 p-4 pt-16">
         {room.chats.map((chat, i) => (
           <Bubble
