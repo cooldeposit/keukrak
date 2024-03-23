@@ -85,7 +85,9 @@ export function Bubble({
     <div className={`chat ${isMine ? "chat-end" : "chat-start"}`}>
       {!isMine && (
         <div className="chat-header flex items-center gap-1">
-          <div className="mb-1 ml-0.5 text-sm font-medium">{nickname.name}</div>
+          <div className="mb-1 ml-0.5 whitespace-nowrap text-sm font-medium">
+            {nickname.name}
+          </div>
           {nickname.name !== MODERATOR && memos && setMemos && (
             <details className="dropdown dropdown-bottom" ref={detailRef}>
               <summary className="btn btn-xs mb-1 flex items-center gap-1">
