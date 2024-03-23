@@ -1,7 +1,7 @@
 "use client";
 
 import { BottomSheet } from "@/app/components/BottomSheet";
-import { Bubble, MODERATOR } from "@/app/components/Chat";
+import { Bubble } from "@/app/components/Chat";
 import { Header } from "@/app/components/Header";
 import type { Memo } from "@/app/components/Main";
 import type { NicknameType, RoomType, UserType } from "@/app/types/room";
@@ -229,8 +229,7 @@ export default function Poll({
   >([]);
 
   useEffect(() => {
-    console.log(room.chats);
-    if (room.chats)
+    if (room.nicknames)
       room.nicknames.forEach((nickname) => {
         const chat = {
           nickname,
