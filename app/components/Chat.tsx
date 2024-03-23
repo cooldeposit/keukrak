@@ -168,11 +168,13 @@ export function Chat({
   ws,
   memos,
   setMemos,
+  pollOngoing,
 }: {
   defaultRoom: RoomType;
   ws: WebSocket;
   memos: Memo[];
   setMemos: Dispatch<SetStateAction<Memo[]>>;
+  pollOngoing: () => void;
 }) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
@@ -204,10 +206,7 @@ export function Chat({
 
   useEffect(() => {
     if (isDone) {
-      setRoom((prev) => ({
-        ...prev,
-        pollOngoing: true,
-      }));
+      pollOngoing();
     }
   }, [isDone]);
 
@@ -271,10 +270,7 @@ export function Chat({
       const message: MessageType = JSON.parse(payload);
 
       if (message.type === "poll") {
-        setRoom((prev) => ({
-          ...prev,
-          pollOngoing: true,
-        }));
+        pollOngoing();
       }
 
       if (message.type !== "message") return;
