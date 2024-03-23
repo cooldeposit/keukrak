@@ -22,7 +22,7 @@ const config: Config = {
         screen: ["100vh", "100dvh"],
       },
       fontFamily: {
-        sans: ["Wanted\\ Sans", ...fontFamily.sans],
+        sans: ["Wanted\\ Sans\\ Variable", "Wanted\\ Sans", ...fontFamily.sans],
       },
     },
   },

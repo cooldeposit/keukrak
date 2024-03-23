@@ -43,7 +43,11 @@ function Card({ nickname, name, type, verbose }: Result) {
         type === "wrong" ? "border-red-500 bg-red-100 text-red-900" : "",
       )}
     >
-      {type === "correct" ? <CheckCircle /> : <X />}
+      {type === "correct" ? (
+        <CheckCircle className="flex-none" />
+      ) : (
+        <X className="flex-none" />
+      )}
       <span>{text}</span>
     </li>
   );
@@ -120,8 +124,8 @@ export default function ResultPage() {
                 <span className="w-auto font-bold text-slate-800">
                   더 자세한 정보
                 </span>
-                <ChevronDown className="group-open:hidden" />
-                <ChevronUp className="hidden group-open:block" />
+                <ChevronDown className="flex-none group-open:hidden" />
+                <ChevronUp className="hidden flex-none group-open:block" />
               </summary>
               <div className="collapse-content flex flex-col gap-2 !p-2 !pt-0 text-slate-700">
                 <div className="flex flex-col gap-2 rounded-lg bg-slate-300 p-4">
@@ -168,12 +172,12 @@ export default function ResultPage() {
               >
                 {supportsShare ? (
                   <>
-                    <Share />
+                    <Share className="flex-none" />
                     <span>이미지 공유</span>
                   </>
                 ) : (
                   <>
-                    <Download />
+                    <Download className="flex-none" />
                     <span>이미지 다운로드</span>
                   </>
                 )}

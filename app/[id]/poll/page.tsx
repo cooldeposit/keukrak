@@ -77,7 +77,7 @@ function Option({ nickname, chats, options, answer, setAnswer }: OptionProps) {
               {guess ? (
                 <>
                   <span>{guess.name ?? "AI"}</span>
-                  <RotateCcw size={20} />
+                  <RotateCcw size={20} className="flex-none" />
                 </>
               ) : (
                 <span>선택</span>

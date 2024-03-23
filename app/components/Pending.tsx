@@ -279,19 +279,19 @@ export function Pending({ defaultRoom }: PendingProps) {
             >
               {clicked ? (
                 <>
-                  <Check />
+                  <Check className="flex-none" />
                   <span>링크 복사됨</span>
                 </>
               ) : (
                 <>
-                  <ClipboardList />
+                  <ClipboardList className="flex-none" />
                   <span>링크 복사</span>
                 </>
               )}
             </button>
             {typeof navigator.share === "function" && (
               <button className="btn" onClick={handleShareClick}>
-                <Share />
+                <Share className="flex-none" />
                 <span>링크 공유</span>
               </button>
             )}

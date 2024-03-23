@@ -94,7 +94,7 @@ export function Bubble({
                 {guess ? (
                   <>
                     <span>{guess.name}</span>
-                    <RotateCcw size={16} />
+                    <RotateCcw size={16} className="flex-none" />
                   </>
                 ) : (
                   <span>메모</span>
