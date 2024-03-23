@@ -5,7 +5,7 @@ import { CloudFogIcon } from "lucide-react";
 export default function HomePage() {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-grow flex-col justify-end gap-4 p-5 pb-24">
+      <div className="flex flex-grow flex-col justify-end gap-4 p-5 pb-28">
         <CloudFogIcon className="flex-none text-primary" size={64} />
         <h1 className="text-4xl font-medium leading-snug text-primary">
           <em className="font-extrabold not-italic">극락 퀴즈쇼</em>로
@@ -13,7 +13,7 @@ export default function HomePage() {
           당신을 초대합니다.
         </h1>
         <hr className="my-3" />
-        <div className="flex w-full flex-col gap-4 pb-1 leading-relaxed text-slate-800">
+        <div className="flex w-full flex-col gap-4 pb-1 leading-relaxed text-zinc-800">
           <p>
             <em className="font-bold not-italic">
               오오오… 당신의 친구들을 진정으로 사랑한다는 것…
