@@ -51,7 +51,13 @@ export default function Page() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              if (e.nativeEvent.isComposing) return;
+
+              handleSend();
+            }
+          }}
           className="input input-bordered flex-grow"
           type="text"
           placeholder="Your message"
