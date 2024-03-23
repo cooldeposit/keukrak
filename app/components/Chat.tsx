@@ -181,10 +181,6 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
     setCanEnter(true);
   };
 
-  useEffect(() => {
-    getMe();
-  }, []);
-
   const handleSend = async () => {
     if (!me) return;
     try {
@@ -224,49 +220,67 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
         }),
       );
       setInput("");
+      setTimeout(scrollToBottom, 100);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
   };
-  const onMessage = useCallback(async (event: MessageEvent<Blob>) => {
-    const payload = await event.data.text();
-    const message: MessageType = JSON.parse(payload);
 
-    if (message.type !== "message") return;
-    if (message.id !== room.id) return;
-    const content = message.payload as ChatPayloadType;
+  const onMessage = useCallback(
+    async (event: MessageEvent<Blob>) => {
+      const payload = await event.data.text();
+      const message: MessageType = JSON.parse(payload);
 
-    setRoom((prev) => ({
-      ...prev,
-      chats: [
-        ...prev.chats,
-        {
-          message: content.content,
-          created_at: new Date(),
-          nickname: content.nickname,
-        },
-      ],
-    }));
+      if (message.type !== "message") return;
+      if (message.id !== room.id) return;
+      const content = message.payload as ChatPayloadType;
 
-    setTimeout(scrollToBottom, 100);
-  }, []);
+      setRoom((prev) => ({
+        ...prev,
+        chats: [
+          ...prev.chats,
+          {
+            message: content.content,
+            created_at: new Date(),
+            nickname: content.nickname,
+          },
+        ],
+      }));
+
+      setTimeout(scrollToBottom, 100);
+    },
+    [room.id],
+  );
 
   const chatRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    chatRef.current?.scrollTo(0, chatRef.current?.scrollHeight);
-  };
+  const scrollToBottom = useCallback(() => {
+    if (!chatRef.current) return;
+    chatRef.current.scroll({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+    console.log(chatRef.current.scrollHeight);
+  }, [chatRef]);
 
   useEffect(() => {
     ws?.addEventListener("message", onMessage);
     return () => ws?.removeEventListener("message", onMessage);
   }, [onMessage, ws]);
 
+  useEffect(() => {
+    getMe();
+  }, [getMe]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [canEnter]);
+
   return canEnter ? (
-    <div className="flex-grow" ref={chatRef}>
-      <div className="flex h-full flex-grow flex-col gap-3 p-4 pb-28 pt-16">
+    <div className="h-[100dvh] flex-grow overflow-auto pb-28" ref={chatRef}>
+      <div className="flex flex-grow flex-col gap-3 p-4 pt-16">
         {room.chats.map((chat, i) => (
           <Bubble
             isMine={chat.nickname.name === me?.nickname.name}
