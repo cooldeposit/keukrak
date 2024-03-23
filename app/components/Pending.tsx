@@ -61,6 +61,7 @@ export function Pending({ defaultRoom }: PendingProps) {
     ws?.send(
       JSON.stringify({
         type: "enter",
+        id: room.id,
         payload: {
           userId: id,
           username: username,
@@ -81,6 +82,7 @@ export function Pending({ defaultRoom }: PendingProps) {
     ws?.send(
       JSON.stringify({
         type: "leave",
+        id: room.id,
         payload: {
           userId: localStorage.getItem("userId")!,
           username: localStorage.getItem("username")!,
@@ -133,6 +135,7 @@ export function Pending({ defaultRoom }: PendingProps) {
       ws?.send(
         JSON.stringify({
           type: "enter",
+          id: room.id,
           payload: {
             userId: res.userId,
             username: username,
@@ -159,6 +162,18 @@ export function Pending({ defaultRoom }: PendingProps) {
       console.log(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStart = async () => {
+    try {
+      const res = await (
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}/next`,
+        )
+      ).json();
+    } catch (e) {
+    } finally {
     }
   };
 
@@ -337,6 +352,7 @@ export function Pending({ defaultRoom }: PendingProps) {
             <button
               className="btn btn-primary w-full"
               disabled={room.users.length === 1}
+              onClick={handleStart}
             >
               시작
             </button>
