@@ -48,6 +48,8 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
 
   const handleReenter = useCallback(async () => {
     const id = localStorage.getItem("userId");
+    const username = localStorage.getItem("username");
+
     await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${room.id}`, {
       method: "POST",
       headers: {
