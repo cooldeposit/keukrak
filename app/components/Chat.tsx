@@ -26,7 +26,8 @@ type BubbleProps = {
 
 type Memo = {
   nickname: string;
-  name: string;
+  name?: string;
+  isAI: boolean;
 };
 
 const MODERATOR = "사회자";
@@ -47,7 +48,7 @@ export function Bubble({
     }
   };
 
-  const handleMemoClick = ({ nickname, name }: Memo) => {
+  const handleMemoClick = ({ nickname, name, isAI }: Memo) => {
     if (!setMemos) {
       return;
     }
@@ -55,11 +56,11 @@ export function Bubble({
     setMemos((prev) => {
       if (prev.find((memo) => memo.nickname === nickname)) {
         return prev.map((memo) =>
-          memo.nickname === nickname ? { ...memo, name } : memo,
+          memo.nickname === nickname ? { ...memo, name, isAI } : memo,
         );
       }
 
-      return [...prev, { nickname, name }];
+      return [...prev, { nickname, name, isAI }];
     });
 
     closeMenu();
@@ -92,7 +93,7 @@ export function Bubble({
               <summary className="btn btn-xs mb-1 flex items-center gap-1">
                 {guess ? (
                   <>
-                    <span>{guess.name}</span>
+                    <span>{guess.name ?? "AI"}</span>
                     <RotateCcw size={16} className="flex-none" />
                   </>
                 ) : (
@@ -104,13 +105,26 @@ export function Bubble({
                   <li key={name}>
                     <button
                       onClick={() =>
-                        handleMemoClick({ nickname: nickname.name, name })
+                        handleMemoClick({
+                          nickname: nickname.name,
+                          name,
+                          isAI: false,
+                        })
                       }
                     >
                       {name}
                     </button>
                   </li>
                 ))}
+                <li>
+                  <button
+                    onClick={() =>
+                      handleMemoClick({ nickname: nickname.name, isAI: true })
+                    }
+                  >
+                    AI
+                  </button>
+                </li>
                 <li>
                   <button onClick={handleRemoveMemoClick}>메모 삭제</button>
                 </li>
@@ -269,8 +283,15 @@ export function Chat({
     scrollToBottom();
   }, [canEnter]);
 
+  useEffect(() => {
+    const id = setInterval(() => {}, 1000);
+  }, []);
+
   return canEnter ? (
     <div className="h-[100dvh] flex-grow overflow-auto pb-36" ref={chatRef}>
+      <div className="fixed top-0 z-50 mx-auto w-full max-w-lg items-center p-4 text-right font-bold">
+        00:00
+      </div>
       <div className="flex flex-grow flex-col gap-3 p-4 pt-16">
         {room.chats.map((chat, i) => (
           <Bubble
