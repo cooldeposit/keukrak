@@ -3,39 +3,48 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { Header } from "@/app/components/Header";
 import { dataURLtoFile, j } from "@/app/lib/utils";
-import { CheckCircle, Download, RotateCcw, Share, X } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  RotateCcw,
+  Share,
+  X,
+} from "lucide-react";
 import { josa } from "@toss/hangul";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import html2canvas from "html2canvas-pro";
-import { pathToFileURL } from "url";
 
 interface Result {
   name: string;
   nickname: string;
   type: "correct" | "wrong";
+  verbose?: boolean;
 }
 
-function Card({ nickname, name, type }: Result) {
+function Card({ nickname, name, type, verbose }: Result) {
   const nicknameJosa =
     type === "correct" ? josa(nickname, "이/가") : josa(nickname, "은/는");
   const nameJosa = josa(name, "이/가");
+
+  const text = verbose
+    ? `${nicknameJosa} ${nameJosa} ${type === "correct" ? "맞았어요." : "아니었어요."}`
+    : `${nickname} → ${name}`;
 
   return (
     <li
       className={j(
         "flex items-center gap-2 rounded-xl border-4 p-3 font-semibold",
         type === "correct"
-          ? "border-green-600 bg-green-100 text-green-900"
+          ? "border-green-500 bg-green-100 text-green-900"
           : "",
-        type === "wrong" ? "border-red-600 bg-red-100 text-red-900" : "",
+        type === "wrong" ? "border-red-500 bg-red-100 text-red-900" : "",
       )}
     >
       {type === "correct" ? <CheckCircle /> : <X />}
-      <span>
-        {nicknameJosa} {nameJosa}{" "}
-        {type === "correct" ? "맞았어요." : "아니었어요."}
-      </span>
+      <span>{text}</span>
     </li>
   );
 }
@@ -81,11 +90,14 @@ export default function ResultPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header text="~~님이 연 극락 퀴즈쇼" />
+      <Header text="~~님의 극락 퀴즈쇼" />
       <div className="flex-grow">
-        <div className="flex h-full flex-col gap-4 pb-28 pt-16">
-          <div ref={shareRef} className="flex flex-col gap-4 p-4">
-            <div className="grid grid-cols-2 gap-4">
+        <div className="flex h-full flex-col gap-4 pb-24 pt-16">
+          <div
+            ref={shareRef}
+            className="flex -translate-y-6 flex-col gap-4 p-4"
+          >
+            <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-2 rounded-xl bg-slate-100 p-4">
                 <span className="text-lg font-semibold">당신의 점수</span>
                 <span className="text-3xl font-bold text-primary">100점</span>
@@ -96,11 +108,48 @@ export default function ResultPage() {
               </div>
             </div>
             <ul className="flex flex-col gap-2">
-              <Card name="영헌" nickname="개빡친 무지" type="correct" />
-              <Card name="AI" nickname="개빡친 무지" type="wrong" />
-              <Card name="현채" nickname="개빡친 무지" type="correct" />
-              <Card name="찬휘" nickname="개빡친 무지" type="correct" />
+              <Card name="영헌" nickname="개빡친 무지" type="correct" verbose />
+              <Card name="AI" nickname="개빡친 무지" type="wrong" verbose />
+              <Card name="현채" nickname="개빡친 무지" type="correct" verbose />
+              <Card name="찬휘" nickname="개빡친 무지" type="correct" verbose />
             </ul>
+          </div>
+          <div className="-translate-y-8 p-4 pt-0">
+            <details className="group collapse bg-slate-200 p-2">
+              <summary className="collapse-title !flex w-full flex-row items-center justify-between pr-4">
+                <span className="w-auto font-bold text-slate-800">
+                  더 자세한 정보
+                </span>
+                <ChevronDown className="group-open:hidden" />
+                <ChevronUp className="hidden group-open:block" />
+              </summary>
+              <div className="collapse-content flex flex-col gap-2 !p-2 !pt-0 text-slate-700">
+                <div className="flex flex-col gap-2 rounded-lg bg-slate-300 p-4">
+                  <h2 className="font-bold">현채의 생각</h2>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
+                    <Card name="영헌" nickname="개빡친 무지" type="wrong" />
+                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 rounded-lg bg-slate-300 p-4">
+                  <h2 className="font-bold">현채의 생각</h2>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
+                    <Card name="영헌" nickname="개빡친 무지" type="wrong" />
+                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 rounded-lg bg-slate-300 p-4">
+                  <h2 className="font-bold">현채의 생각</h2>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
+                    <Card name="영헌" nickname="개빡친 무지" type="wrong" />
+                    <Card name="영헌" nickname="개빡친 무지" type="correct" />
+                  </div>
+                </div>
+              </div>
+            </details>
           </div>
         </div>
         <BottomSheet>

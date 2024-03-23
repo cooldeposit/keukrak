@@ -4,7 +4,7 @@ import StartInput from "./StartInput";
 export default function HomePage() {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-grow flex-col justify-center gap-4 p-4 pb-28">
+      <div className="flex flex-grow flex-col justify-center gap-4 p-4 pb-24">
         <div className="mt-auto flex flex-col gap-4 p-1 leading-relaxed text-slate-800">
           <p>
             <em className="font-bold not-italic">
