@@ -252,7 +252,15 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
         },
       ],
     }));
+
+    setTimeout(scrollToBottom, 100);
   }, []);
+
+  const chatRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    chatRef.current?.scrollTo(0, chatRef.current?.scrollHeight);
+  };
 
   useEffect(() => {
     ws?.addEventListener("message", onMessage);
@@ -260,7 +268,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
   }, [onMessage, ws]);
 
   return canEnter ? (
-    <div className="flex-grow">
+    <div className="flex-grow" ref={chatRef}>
       <div className="flex h-full flex-grow flex-col gap-3 p-4 pb-28 pt-16">
         {room.chats.map((chat) => (
           <Bubble
