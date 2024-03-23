@@ -19,7 +19,7 @@ export default function StartInput() {
     try {
       setLoading(true);
       const res = (await (
-        await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/room`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: username }),
