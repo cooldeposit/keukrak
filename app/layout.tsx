@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "극락 퀴즈쇼",
   description: "여기가 극락이다",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({
