@@ -210,28 +210,36 @@ export default function Poll({
     }[]
   >([]);
 
-  const nicknames = room.chats
-    .map((c) => c.nickname)
-    .filter((n) => n.name !== MODERATOR);
+  const [nicknames, setNicknames] = useState<NicknameType[]>(
+    room.chats.map((c) => c.nickname).filter((n) => n.name !== MODERATOR),
+  );
 
-  nicknames.forEach((nickname) => {
-    const chat = {
-      nickname,
-      chats: [] as string[],
-    };
-
-    room.chats.forEach((c) => {
-      if (c.nickname.name === nickname.name) {
-        chat.chats.push(c.message);
-      }
-    });
-
-    setOrganizedChats((prev) =>
-      [...prev, chat].sort((a, b) =>
-        a.nickname.name.localeCompare(b.nickname.name),
-      ),
+  useEffect(() => {
+    setNicknames(
+      room.chats.map((c) => c.nickname).filter((n) => n.name !== MODERATOR),
     );
-  });
+  }, [room]);
+
+  useEffect(() => {
+    nicknames.forEach((nickname) => {
+      const chat = {
+        nickname,
+        chats: [] as string[],
+      };
+
+      room.chats.forEach((c) => {
+        if (c.nickname.name === nickname.name) {
+          chat.chats.push(c.message);
+        }
+      });
+
+      setOrganizedChats((prev) =>
+        [...prev, chat].sort((a, b) =>
+          a.nickname.name.localeCompare(b.nickname.name),
+        ),
+      );
+    });
+  }, [nicknames]);
 
   const isAnswerComplete = (() => {
     if (!answer) {
