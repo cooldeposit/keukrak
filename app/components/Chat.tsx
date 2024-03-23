@@ -142,7 +142,12 @@ export function Bubble({
                 : "bg-slate-200 text-slate-800",
           )}
         >
-          {text}
+          {text.split("\n").map((line, i) => (
+            <>
+              {line}
+              <br />
+            </>
+          ))}
         </div>
       </div>
     </div>
