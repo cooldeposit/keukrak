@@ -1,28 +1,36 @@
 import { Chat } from "@/app/components/Chat";
 import { Header } from "@/app/components/Header";
 import { Pending } from "@/app/components/Pending";
+import { RoomType } from "../types/room";
+import { redirect } from "next/navigation";
 
-export default function RoomPage() {
-  const USERS = ["찬휘", "희찬"];
-  // const USERS = ["찬휘"];
+const fetchRoom = async (id: string) => {
+  try {
+    const res: RoomType = await (
+      await fetch(`${process.env.NEXT_PUBLIC_API_HOST}/api/room/${id}`)
+    ).json();
 
-  const ME = "찬휘";
-  const ADMIN_NAME = "희찬";
+    return res;
+  } catch (e) {
+    console.log(e);
+    redirect("/");
+  }
+};
 
-  // @ts-expect-error ㅁㄴㅇㄹ
-  const isAdmin = ME === ADMIN_NAME;
-
-  const HAS_STARTED = false;
+export default async function RoomPage({ params }: { params: { id: string } }) {
+  const room = await fetchRoom(params.id);
+  const ADMIN_NAME = room.users.filter((user) => user.isAdmin)[0].username;
 
   return (
     <div className="flex h-full flex-col">
-      <Header
-        text={`${isAdmin ? "내가" : `${ADMIN_NAME}님이`} 연 극락 퀴즈쇼`}
-      />
-      {/* @ts-expect-error ㅁㄴㅇㄹ */}
-      {HAS_STARTED === true && <Chat />}
-      {HAS_STARTED === false && (
-        <Pending adminName={ADMIN_NAME} me={ME} users={USERS} />
+      <Header text={`${ADMIN_NAME}님이 연 극락 퀴즈쇼`} />
+      {room.currentQuestion >= 0 && <Chat />}
+      {room.currentQuestion === -1 && (
+        <Pending
+          adminName={ADMIN_NAME}
+          me={"나"}
+          users={room.users.map((user) => user.username)}
+        />
       )}
     </div>
   );
