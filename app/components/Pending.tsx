@@ -23,7 +23,7 @@ export function Pending({ defaultRoom }: PendingProps) {
   const [clicked, setClicked] = useState(false);
   const [isEntered, setIsEntered] = useState(false);
 
-  const url = `https://${process.env.NEXT_PUBLIC_APP_HOST}/${defaultRoom.id}`;
+  const url = `${process.env.NEXT_PUBLIC_APP_URL}/${defaultRoom.id}`;
   const admin = getAdmin(room)!;
   const isAdmin = userId === admin.id;
 
