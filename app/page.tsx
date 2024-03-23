@@ -1,9 +1,9 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex flex-grow flex-col items-center justify-center gap-4 p-4 pb-24">
+      <div className="flex flex-grow flex-col items-center justify-center gap-4 p-4 pb-28">
         <h1 className="text-center text-3xl font-bold text-primary">
           극락 퀴즈쇼
         </h1>
