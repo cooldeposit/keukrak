@@ -12,7 +12,6 @@ import {
   useCallback,
 } from "react";
 import { NicknameType, RoomType, UserType } from "../types/room";
-import { useWebSocket } from "next-ws/client";
 import { ChatPayloadType, MessageType } from "../types/message";
 import { useRouter } from "next/navigation";
 
@@ -153,7 +152,13 @@ export function Bubble({
   );
 }
 
-export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
+export function Chat({
+  defaultRoom,
+  ws,
+}: {
+  defaultRoom: RoomType;
+  ws: WebSocket;
+}) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
   );
@@ -164,7 +169,6 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
 
   const [canEnter, setCanEnter] = useState(false);
 
-  const ws = useWebSocket();
   const router = useRouter();
 
   const getMe = useCallback(async () => {
@@ -209,7 +213,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
         ],
       }));
 
-      ws?.send(
+      ws.send(
         JSON.stringify({
           type: "message",
           id: room.id,

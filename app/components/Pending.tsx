@@ -6,15 +6,15 @@ import { Check, ClipboardList, Share } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { RoomType } from "../types/room";
 import { getAdmin } from "../lib/getAdmin";
-import { useWebSocket } from "next-ws/client";
 import { MessageType, UserPayloadType } from "../types/message";
 import { useRouter } from "next/navigation";
 
 interface PendingProps {
   defaultRoom: RoomType;
+  ws: WebSocket;
 }
 
-export function Pending({ defaultRoom }: PendingProps) {
+export function Pending({ defaultRoom, ws }: PendingProps) {
   const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,6 @@ export function Pending({ defaultRoom }: PendingProps) {
   const admin = getAdmin(room)!;
   const isAdmin = userId === admin.id;
 
-  const ws = useWebSocket();
   const router = useRouter();
 
   useEffect(() => {

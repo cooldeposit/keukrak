@@ -106,13 +106,13 @@ function Option({ nickname, chats, options, answer, setAnswer }: OptionProps) {
           </details>
         </div>
       </div>
-      {showingChats && (
+      {/* {showingChats && (
         <div className="flex flex-col gap-3 rounded-md pt-3">
           {chats.map((chat, index) => (
             <Bubble key={index} nickname={nickname} text={chat} />
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 }
