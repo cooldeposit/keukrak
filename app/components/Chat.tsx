@@ -15,6 +15,7 @@ import {
 import { NicknameType, RoomType, UserType } from "../types/room";
 import { useWebSocket } from "next-ws/client";
 import { ChatPayloadType, MessageType } from "../types/message";
+import { useRouter } from "next/navigation";
 
 type BubbleProps = {
   text: string;
@@ -157,17 +158,23 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
   const [room, setRoom] = useState(defaultRoom);
   const [loading, setLoading] = useState(false);
 
+  const [canEnter, setCanEnter] = useState(false);
+
   const ws = useWebSocket();
+  const router = useRouter();
 
   const getMe = async () => {
     const userId = localStorage.getItem("userId");
-    if (!userId) return;
+    if (!userId || room.users.every((user) => user.id !== userId)) {
+      router.push("/");
+    }
     const res: UserType & { nickname: NicknameType } = await (
       await fetch(
         `${process.env.NEXT_PUBLIC_API_HOST}/api/me/${room.id}/${userId}`,
       )
     ).json();
     setMe(res);
+    setCanEnter(true);
   };
 
   useEffect(() => {
@@ -246,7 +253,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
     return () => ws?.removeEventListener("message", onMessage);
   }, [onMessage, ws]);
 
-  return (
+  return canEnter ? (
     <div className="flex-grow">
       <div className="flex h-full flex-grow flex-col gap-3 p-4 pb-28 pt-16">
         {room.chats.map((chat) => (
@@ -283,6 +290,10 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
           </button>
         </div>
       </BottomSheet>
+    </div>
+  ) : (
+    <div className="flex h-full w-full items-center justify-center bg-white">
+      <div className="loading text-primary" />
     </div>
   );
 }
