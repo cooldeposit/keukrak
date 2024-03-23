@@ -10,6 +10,14 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      minHeight: {
+        // @ts-expect-error screen can be an array
+        screen: ["100vh", "100dvh"],
+      },
+      height: {
+        // @ts-expect-error screen can be an array
+        screen: ["100vh", "100dvh"],
+      },
       fontFamily: {
         sans: ["Wanted\\ Sans", ...fontFamily.sans],
       },
