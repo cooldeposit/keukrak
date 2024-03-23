@@ -81,9 +81,9 @@ export function Bubble({
       : memos.find((memo) => memo.nickname === nickname?.name);
 
   return (
-    <div className={`chat ${isMine ? "chat-end" : "chat-start"}`}>
+    <div className={`chat ${isMine ? "chat-end" : "chat-start"} flex flex-col`}>
       {!isMine && (
-        <div className="chat-header flex items-center gap-1">
+        <div className="chat-header ml-12 flex items-center gap-1">
           <div className="mb-1 ml-0.5 whitespace-nowrap text-sm font-medium">
             {nickname.name}
           </div>
@@ -123,7 +123,7 @@ export function Bubble({
         className={j("flex items-end gap-4", isMine ? "flex-row-reverse" : "")}
       >
         <div
-          className="flex h-6 w-6 items-center justify-center rounded-full"
+          className="flex size-8 flex-none items-center justify-center rounded-full"
           style={{
             backgroundColor: nickname.color,
           }}
@@ -270,7 +270,7 @@ export function Chat({
   }, [canEnter]);
 
   return canEnter ? (
-    <div className="h-[100dvh] flex-grow overflow-auto pb-28" ref={chatRef}>
+    <div className="h-[100dvh] flex-grow overflow-auto pb-36" ref={chatRef}>
       <div className="flex flex-grow flex-col gap-3 p-4 pt-16">
         {room.chats.map((chat, i) => (
           <Bubble
@@ -288,7 +288,8 @@ export function Chat({
         <div className="flex w-full items-end gap-2">
           <div className="flex flex-grow flex-col gap-1">
             <span className="text-medium ml-1 text-sm font-semibold text-neutral">
-              {room.concept}. “{room.questions[room.currentQuestion]}”
+              {room.concept}.<br />
+              질문: “{room.questions[room.currentQuestion]}”
             </span>
             <input
               placeholder="안녕하세요?"
@@ -296,6 +297,12 @@ export function Chat({
               className="input input-bordered flex-grow"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSend();
+                }
+              }}
+              disabled={loading}
             />
           </div>
           <button

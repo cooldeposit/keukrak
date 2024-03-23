@@ -343,6 +343,11 @@ export function Pending({ defaultRoom, ws }: PendingProps) {
                     className="input input-bordered flex-grow"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleEnter();
+                      }
+                    }}
                     disabled={loading}
                   />
                 </div>

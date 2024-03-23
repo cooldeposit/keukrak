@@ -49,6 +49,11 @@ export default function StartInput() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={loading}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleStart();
+            }
+          }}
         />
       </div>
       <button
