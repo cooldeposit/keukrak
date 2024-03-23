@@ -300,7 +300,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
               {room.concept}. “{room.questions[room.currentQuestion]}”
             </span>
             <input
-              placeholder="안녕하세요?"
+              placeholder="안녕하세요? 저는…"
               type="text"
               className="input input-bordered flex-grow"
               value={input}
@@ -312,7 +312,7 @@ export function Chat({ defaultRoom }: { defaultRoom: RoomType }) {
             onClick={handleSend}
             disabled={loading}
           >
-            전송
+            {loading ? <div className="loading" /> : "전송"}
           </button>
         </div>
       </BottomSheet>

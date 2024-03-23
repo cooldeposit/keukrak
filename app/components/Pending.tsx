@@ -116,7 +116,7 @@ export function Pending({ defaultRoom }: PendingProps) {
   const handleShareClick = () => {
     navigator.share({
       url,
-      text: `${getAdmin(room)!.username}님이 연 극락 퀴즈쇼에 함께해주세요! ${username ? username + "님도 참여하고 있어요." : ""}\n\n`,
+      text: `${getAdmin(room)!.username}님의 극락 퀴즈쇼에 함께해주세요! ${username ? username + "님도 참여하고 있어요." : ""}\n\n`,
     });
   };
 
