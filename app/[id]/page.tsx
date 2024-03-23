@@ -4,6 +4,7 @@ import { Pending } from "@/app/components/Pending";
 import { RoomType } from "../types/room";
 import { redirect } from "next/navigation";
 import { getAdmin } from "../lib/getAdmin";
+import WSProvider from "./WSProvider";
 
 const fetchRoom = async (id: string) => {
   try {
@@ -27,8 +28,10 @@ export default async function RoomPage({ params }: { params: { id: string } }) {
   return (
     <div className="flex h-full flex-col">
       <Header text={`${admin!.username}님이 연 극락 퀴즈쇼`} />
-      {room.currentQuestion >= 0 && <Chat />}
-      {room.currentQuestion === -1 && <Pending room={room} />}
+      <WSProvider>
+        {room.currentQuestion >= 0 && <Chat />}
+        {room.currentQuestion === -1 && <Pending defaultRoom={room} />}
+      </WSProvider>
     </div>
   );
 }

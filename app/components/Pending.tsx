@@ -3,35 +3,64 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { j } from "@/app/lib/utils";
 import { Check, ClipboardList, Share } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RoomType } from "../types/room";
 import { getAdmin } from "../lib/getAdmin";
+import { useWebSocket } from "next-ws/client";
+import { MessageType, UserPayloadType } from "../types/message";
 
 interface PendingProps {
-  room: RoomType;
+  defaultRoom: RoomType;
 }
 
-export function Pending({ room }: PendingProps) {
+export function Pending({ defaultRoom }: PendingProps) {
   const [userId, setUserId] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [room, setRoom] = useState<RoomType>(defaultRoom);
 
-  const url = `https://${process.env.NEXT_PUBLIC_APP_HOST}/${room.id}`;
+  const [clicked, setClicked] = useState(false);
+  const [isEntered, setIsEntered] = useState(false);
 
+  const url = `https://${process.env.NEXT_PUBLIC_APP_HOST}/${defaultRoom.id}`;
   const admin = getAdmin(room)!;
+  const isAdmin = userId === admin.id;
 
   useEffect(() => {
     if (typeof localStorage === "undefined") return;
 
     if (localStorage.getItem("userId") !== null) {
-      const id = localStorage.getItem("userId");
-      setUserId(id);
-      setIsEntered(room.users.some((user) => user.id === id));
+      setUserId(localStorage.getItem("userId"));
     }
     if (localStorage.getItem("username") !== null) {
       setUsername(localStorage.getItem("username")!);
     }
+
+    window.addEventListener("beforeunload", handleUnmount);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleUnmount);
+    };
   }, []);
+
+  useEffect(() => {
+    setIsEntered(
+      room.users.some((user) => user.id === localStorage.getItem("userId")),
+    );
+  }, [room]);
+
+  const handleUnmount = () => {
+    ws?.send(
+      JSON.stringify({
+        type: "leave",
+        payload: {
+          userId: localStorage.getItem("userId")!,
+          username: localStorage.getItem("username")!,
+        },
+      }),
+    );
+    ws?.close();
+  };
 
   const handleCopyClick = () => {
     navigator.clipboard.writeText(url);
@@ -63,10 +92,31 @@ export function Pending({ room }: PendingProps) {
           },
         )
       ).json();
+      ws?.send(
+        JSON.stringify({
+          type: "enter",
+          payload: {
+            userId: res.userId,
+            username: username,
+          },
+        }),
+      );
       localStorage.setItem("userId", res.userId);
       localStorage.setItem("username", username!);
       setUserId(res.userId);
       setIsEntered(true);
+      setRoom((room) => ({
+        ...room,
+        users: [
+          ...room.users,
+          {
+            id: res.userId,
+            username: username,
+            isOnline: true,
+            isAdmin: false,
+          },
+        ],
+      }));
     } catch (e) {
       console.log(e);
     } finally {
@@ -74,10 +124,69 @@ export function Pending({ room }: PendingProps) {
     }
   };
 
-  const isAdmin = userId === admin.id;
+  const ws = useWebSocket();
 
-  const [clicked, setClicked] = useState(false);
-  const [isEntered, setIsEntered] = useState(false);
+  const onMessage = useCallback(async (event: MessageEvent<Blob>) => {
+    const payload = await event.data.text();
+    const message = JSON.parse(payload) as MessageType;
+
+    if (message.type === "enter") {
+      console.log("enter", message.payload as UserPayloadType);
+      setRoom((room) => {
+        if (
+          room.users.some(
+            (user) => user.id === (message.payload as UserPayloadType).userId,
+          )
+        ) {
+          return {
+            ...room,
+            users: room.users.map((user) => {
+              if (user.id === (message.payload as UserPayloadType).userId) {
+                return {
+                  ...user,
+                  isOnline: true,
+                };
+              }
+              return user;
+            }),
+          };
+        }
+        return {
+          ...room,
+          users: [
+            ...room.users,
+            {
+              id: (message.payload as UserPayloadType).userId,
+              username: (message.payload as UserPayloadType).username,
+              isOnline: true,
+              isAdmin: false,
+            },
+          ],
+        };
+      });
+    }
+
+    if (message.type === "leave") {
+      console.log("leave", message.payload as UserPayloadType);
+      setRoom((room) => ({
+        ...room,
+        users: room.users.map((user) => {
+          if (user.id === (message.payload as UserPayloadType).userId) {
+            return {
+              ...user,
+              isOnline: false,
+            };
+          }
+          return user;
+        }),
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    ws?.addEventListener("message", onMessage);
+    return () => ws?.removeEventListener("message", onMessage);
+  }, [onMessage, ws]);
 
   return (
     <div className="flex-grow">
@@ -130,6 +239,12 @@ export function Pending({ room }: PendingProps) {
                 key={user.id}
                 className="flex items-center justify-center rounded-lg border-4 border-slate-200 bg-slate-100 p-2 text-center font-semibold text-slate-700"
               >
+                <div
+                  className={j(
+                    "mr-2 h-2 w-2 rounded-full",
+                    user.isOnline ? "bg-green-500" : "bg-slate-400",
+                  )}
+                />
                 {user.id === userId ? "나" : user.username}
                 {user.id === admin.id && " (방장)"}
               </div>
