@@ -3,15 +3,7 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { Header } from "@/app/components/Header";
 import { dataURLtoFile, j } from "@/app/lib/utils";
-import {
-  CheckCircle,
-  ChevronDown,
-  ChevronUp,
-  Download,
-  RotateCcw,
-  Share,
-  X,
-} from "lucide-react";
+import { CheckCircle, Download, RotateCcw, Share, X } from "lucide-react";
 import { josa } from "@toss/hangul";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -175,7 +167,7 @@ export default function Result({ defaultRoom, result }: ResultProps) {
               ))}
               <Card
                 name="AI"
-                nickname="개빡친 무지"
+                nickname={result[0].result.aiNickname || "AI"}
                 correct={myResult?.result.guessAI ?? false}
                 verbose
               />

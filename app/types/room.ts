@@ -15,7 +15,7 @@ export interface RoomType {
     score: number;
     result: {
       guessAI: boolean;
-      aiNickname: boolean;
+      aiNickname: string;
       friends: {
         name: string;
         nickname: string;
