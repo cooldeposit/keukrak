@@ -63,6 +63,8 @@ function Card({ nickname, name, correct, verbose }: Card) {
 }
 
 export default function Result({ defaultRoom, result }: ResultProps) {
+  console.log(result);
+
   const shareRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
@@ -151,7 +153,7 @@ export default function Result({ defaultRoom, result }: ResultProps) {
               <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
                 <span className="text-lg font-semibold">당신의 점수</span>
                 <span className="text-3xl font-bold text-primary">
-                  {myScore}점
+                  {myScore?.toFixed(1)}점
                 </span>
               </div>
               <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
