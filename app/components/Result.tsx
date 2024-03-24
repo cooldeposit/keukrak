@@ -142,7 +142,7 @@ export default function Result({ defaultRoom, result }: ResultProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <Header text={`${admin?.username}님의 극락 퀴즈쇼"`} />
+      <Header text={`${admin?.username}님의 극락 퀴즈쇼`} />
       <div className="flex-grow">
         <div className="flex h-full flex-col gap-4 pb-28 pt-16">
           <div
