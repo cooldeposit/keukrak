@@ -18,7 +18,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import type { NicknameType, RoomType, UserType } from "@/app/types/room";
 import type { Memo } from "@/app/components/Main";
-import { MODERATOR } from "@/app/components/Chat";
 
 interface Card {
   name: string;
@@ -31,6 +30,7 @@ interface ResultProps {
   defaultRoom: RoomType;
   ws: WebSocket;
   memos: Memo[];
+  result: RoomType["result"];
 }
 
 function Card({ nickname, name, correct, verbose }: Card) {
@@ -62,7 +62,7 @@ function Card({ nickname, name, correct, verbose }: Card) {
   );
 }
 
-export default function Result({ defaultRoom, memos }: ResultProps) {
+export default function Result({ defaultRoom, result }: ResultProps) {
   const shareRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
@@ -125,8 +125,6 @@ export default function Result({ defaultRoom, memos }: ResultProps) {
   };
 
   const admin = defaultRoom.users.find((user) => user.isAdmin);
-
-  const { result } = defaultRoom;
 
   const myScore = result.find((r) => r.userId === me?.id)?.score;
 

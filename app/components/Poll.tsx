@@ -40,6 +40,7 @@ interface PollProps {
   memos: Memo[];
   hasEnded: () => void;
   pollOngoing: () => void;
+  setResult: Dispatch<SetStateAction<RoomType["result"]>>;
 }
 
 function Option({
@@ -170,6 +171,7 @@ export default function Poll({
   memos,
   hasEnded,
   pollOngoing,
+  setResult,
 }: PollProps) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
@@ -220,6 +222,7 @@ export default function Poll({
       if (message.type === "pollend") {
         pollOngoing();
         hasEnded();
+        setResult(message.payload as RoomType["result"]);
       }
     },
     [hasEnded, pollOngoing],

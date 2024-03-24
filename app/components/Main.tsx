@@ -19,6 +19,8 @@ export default function Main({ room }: { room: RoomType }) {
   const webSocketUrl = process.env.NEXT_PUBLIC_WS_URL!;
   const ws = useRef<WebSocket | null>(null);
 
+  const [result, setResult] = useState<RoomType["result"]>([]);
+
   useEffect(() => {
     if (!ws.current) {
       ws.current = new WebSocket(webSocketUrl);
@@ -84,10 +86,16 @@ export default function Main({ room }: { room: RoomType }) {
             memos={memos}
             hasEnded={() => setHasEnded(true)}
             pollOngoing={() => setPollOnging(false)}
+            setResult={setResult}
           />
         )}
         {hasEnded && (
-          <Result defaultRoom={room} ws={ws.current} memos={memos} />
+          <Result
+            defaultRoom={room}
+            ws={ws.current}
+            memos={memos}
+            result={result}
+          />
         )}
       </>
     )
