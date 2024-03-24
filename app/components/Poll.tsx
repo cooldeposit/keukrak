@@ -231,19 +231,21 @@ export default function Poll({
   useEffect(() => {
     if (room.nicknames)
       setOrganizedChats(
-        room.nicknames.map(
-          (
-            nickname: NicknameType,
-          ): {
-            nickname: NicknameType;
-            chats: string[];
-          } => ({
-            nickname,
-            chats: room.chats
-              .filter((c) => c.nickname.name === nickname.name)
-              .map((c) => c.message),
-          }),
-        ),
+        room.nicknames
+          .filter((nickname) => nickname.name !== me?.nickname.name)
+          .map(
+            (
+              nickname: NicknameType,
+            ): {
+              nickname: NicknameType;
+              chats: string[];
+            } => ({
+              nickname,
+              chats: room.chats
+                .filter((c) => c.nickname.name === nickname.name)
+                .map((c) => c.message),
+            }),
+          ),
       );
   }, [room]);
 
