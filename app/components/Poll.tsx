@@ -247,7 +247,7 @@ export default function Poll({
             }),
           ),
       );
-  }, [room]);
+  }, [me?.nickname.name, room]);
 
   const isAnswerComplete = (() => {
     if (!answer) {
