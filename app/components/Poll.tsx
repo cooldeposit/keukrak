@@ -317,7 +317,10 @@ export default function Poll({
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(answerForm),
+            body: JSON.stringify({
+              userId: me?.id,
+              answers: answerForm,
+            }),
           },
         )
       ).json()) as Response;
