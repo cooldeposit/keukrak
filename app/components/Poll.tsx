@@ -219,6 +219,8 @@ export default function Poll({
       const payload = event.data as string;
       const message: MessageType = JSON.parse(payload);
 
+      if (message.id !== room.id) return;
+
       if (message.type === "pollend") {
         pollOngoing();
         hasEnded();

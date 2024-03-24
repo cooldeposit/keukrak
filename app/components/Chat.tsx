@@ -269,13 +269,13 @@ export function Chat({
       const payload = event.data as string;
       const message: MessageType = JSON.parse(payload);
 
+      if (message.id !== room.id) return;
+
       if (message.type === "poll") {
         pollOngoing();
       }
 
       if (message.type !== "message") return;
-
-      if (message.id !== room.id) return;
 
       const content = message.payload as ChatPayloadType;
 
