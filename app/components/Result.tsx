@@ -181,7 +181,7 @@ export default function Result({ defaultRoom, result }: ResultProps) {
               />
             </ul>
           </div>
-          <div className="-translate-y-8 p-4 pt-0">
+          {/* <div className="-translate-y-8 p-4 pt-0">
             <details className="group collapse bg-zinc-200 p-2">
               <summary className="collapse-title !flex w-full flex-row items-center justify-between pr-4">
                 <span className="w-auto font-bold text-zinc-800">
@@ -215,7 +215,7 @@ export default function Result({ defaultRoom, result }: ResultProps) {
                 })}
               </div>
             </details>
-          </div>
+          </div> */}
         </div>
         <BottomSheet>
           <div className="flex flex-grow flex-col items-center gap-2">
