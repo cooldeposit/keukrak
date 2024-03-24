@@ -17,6 +17,7 @@ import {
   useCallback,
 } from "react";
 import { getAdmin } from "../lib/getAdmin";
+import { MessageType } from "../types/message";
 
 type Answer = {
   nickname: string;
@@ -211,10 +212,23 @@ export default function Poll({
     setMe(res);
   }, [room.id, room.users, router]);
 
+  const onMessage = useCallback(
+    async (event: MessageEvent) => {
+      const payload = event.data as string;
+      const message: MessageType = JSON.parse(payload);
+
+      if (message.type === "pollend") {
+        pollOngoing();
+        hasEnded();
+      }
+    },
+    [hasEnded, pollOngoing],
+  );
+
   useEffect(() => {
     // TODO
-    ws?.addEventListener("message", () => {});
-    return () => ws?.removeEventListener("message", () => {});
+    ws?.addEventListener("message", onMessage);
+    return () => ws?.removeEventListener("message", onMessage);
   }, [ws]);
 
   useEffect(() => {
