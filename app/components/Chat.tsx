@@ -17,6 +17,7 @@ import {
 import { ChatPayloadType, MessageType } from "../types/message";
 import { NicknameType, RoomType, UserType } from "../types/room";
 import type { Memo } from "@/app/components/Main";
+import { getAdmin } from "../lib/getAdmin";
 
 type BubbleProps = {
   text: string;
@@ -199,7 +200,7 @@ export function Chat({
       );
     }
 
-    if (nowSeconds === 0) {
+    if (nowSeconds === 0 && getAdmin(room)?.id === me?.id) {
       fetchData();
     }
   }, [nowSeconds, room.id]);
