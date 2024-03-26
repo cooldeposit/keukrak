@@ -14,7 +14,11 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { ChatPayloadType, MessageType } from "../types/message";
+import {
+  ChatPayloadType,
+  MessageType,
+  QuestionPayloadType,
+} from "../types/message";
 import { NicknameType, RoomType, UserType } from "../types/room";
 import type { Memo } from "@/app/components/Main";
 import { getAdmin } from "../lib/getAdmin";
@@ -274,6 +278,17 @@ export function Chat({
 
       if (message.type === "poll") {
         pollOngoing();
+      }
+
+      if (message.type === "question") {
+        setRoom((prev) => ({
+          ...prev,
+          currentQuestion: prev.currentQuestion + 1,
+          questions: [
+            ...prev.questions,
+            (message.payload as QuestionPayloadType).question,
+          ],
+        }));
       }
 
       if (message.type !== "message") return;

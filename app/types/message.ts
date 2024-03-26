@@ -10,8 +10,25 @@ export interface UserPayloadType {
   username: string;
 }
 
+export interface QuestionPayloadType {
+  question: string;
+}
+
 export interface MessageType {
-  type: "message" | "enter" | "leave" | "admin" | "start" | "poll" | "pollend";
+  type:
+    | "message"
+    | "enter"
+    | "leave"
+    | "admin"
+    | "start"
+    | "poll"
+    | "pollend"
+    | "question";
   id: string;
-  payload: ChatPayloadType | UserPayloadType | null | RoomType["result"];
+  payload:
+    | ChatPayloadType
+    | UserPayloadType
+    | null
+    | RoomType["result"]
+    | QuestionPayloadType;
 }
