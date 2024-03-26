@@ -11,6 +11,7 @@ export interface UserPayloadType {
 }
 
 export interface QuestionPayloadType {
+  currentQuestion: number;
   question: string;
 }
 

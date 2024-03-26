@@ -274,6 +274,8 @@ export function Chat({
       const payload = event.data as string;
       const message: MessageType = JSON.parse(payload);
 
+      console.log(message);
+
       if (message.id !== room.id) return;
 
       if (message.type === "poll") {
@@ -283,7 +285,8 @@ export function Chat({
       if (message.type === "question") {
         setRoom((prev) => ({
           ...prev,
-          currentQuestion: prev.currentQuestion + 1,
+          currentQuestion: (message.payload as QuestionPayloadType)
+            .currentQuestion,
           questions: [
             ...prev.questions,
             (message.payload as QuestionPayloadType).question,
