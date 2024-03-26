@@ -188,7 +188,7 @@ export function Chat({
   const router = useRouter();
 
   const { startTimer, nowSeconds, isDone } = useTimer({
-    initialSeconds: 30,
+    initialSeconds: 60,
     repeat: 5,
   });
 
@@ -279,17 +279,25 @@ export function Chat({
 
       const content = message.payload as ChatPayloadType;
 
-      setRoom((prev) => ({
-        ...prev,
-        chats: [
-          ...prev.chats,
-          {
-            message: content.content,
-            created_at: new Date(),
-            nickname: content.nickname,
-          },
-        ],
-      }));
+      setRoom((prev) => {
+        if (
+          prev.chats[prev.chats.length - 1]?.message === content.content &&
+          prev.chats[prev.chats.length - 1]?.nickname.name ===
+            content.nickname.name
+        )
+          return prev;
+        return {
+          ...prev,
+          chats: [
+            ...prev.chats,
+            {
+              message: content.content,
+              created_at: new Date(),
+              nickname: content.nickname,
+            },
+          ],
+        };
+      });
 
       setTimeout(scrollToBottom, 100);
     },
