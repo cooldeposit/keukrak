@@ -96,7 +96,7 @@ export function Bubble({
                 {guess ? (
                   <>
                     <span>{guess.name ?? "AI"}</span>
-                    <RotateCcw size={16} className="flex-none" />
+                    <RotateCcw size={12} className="flex-none" />
                   </>
                 ) : (
                   <span>메모</span>
@@ -173,13 +173,13 @@ export function Chat({
   ws,
   memos,
   setMemos,
-  pollOngoing,
+  setPollOngoingTrue: pollOngoing,
 }: {
   defaultRoom: RoomType;
   ws: WebSocket;
   memos: Memo[];
   setMemos: Dispatch<SetStateAction<Memo[]>>;
-  pollOngoing: () => void;
+  setPollOngoingTrue: () => void;
 }) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,

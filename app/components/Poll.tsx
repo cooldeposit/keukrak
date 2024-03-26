@@ -38,8 +38,8 @@ interface PollProps {
   defaultRoom: RoomType;
   ws: WebSocket;
   memos: Memo[];
-  hasEnded: () => void;
-  pollOngoing: () => void;
+  setHasEndedTrue: () => void;
+  setPollOngoingFalse: () => void;
   setResult: Dispatch<SetStateAction<RoomType["result"]>>;
 }
 
@@ -96,25 +96,36 @@ function Option({
     <div className="flex flex-col gap-2 rounded-xl border-2 border-zinc-300 bg-zinc-100 p-4">
       <div className="flex w-full flex-row flex-wrap items-center justify-between gap-2 text-sm font-medium text-zinc-600">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold text-zinc-800">
+          <h2 className="flex items-center gap-2 font-semibold text-zinc-800">
+            <div
+              className="flex size-6 flex-none items-center justify-center rounded-full"
+              style={{
+                backgroundColor: nickname.color,
+              }}
+            >
+              <span className="text-xs font-bold">{nickname.icon}</span>
+            </div>
             {nickname.name}
           </h2>
           <p>
-            {memoGuess && memoGuess.name
-              ? `${josa(memoGuess.name, "으로/로")} 메모함`
+            {memoGuess && (memoGuess.name || memoGuess.isAI)
+              ? `${josa(
+                  memoGuess.isAI ? "AI" : memoGuess.name!,
+                  "으로/로",
+                )} 메모함`
               : "메모 안 함"}
           </p>
         </div>
         <div className="flex gap-2">
-          <button className="btn btn-ghost" onClick={toggleChats}>
+          <button className="btn btn-ghost btn-sm" onClick={toggleChats}>
             채팅 {showingChats ? "닫기" : "열기"}
           </button>
           <details className="dropdown dropdown-left" ref={detailRef}>
-            <summary className="btn btn-primary flex items-center gap-2">
+            <summary className="btn btn-primary btn-sm flex items-center gap-2">
               {guess ? (
                 <>
                   <span>{guess?.name ?? "AI"}</span>
-                  <RotateCcw size={20} className="flex-none" />
+                  <RotateCcw size={16} className="flex-none" />
                 </>
               ) : (
                 <span>선택</span>
@@ -169,13 +180,14 @@ export default function Poll({
   defaultRoom,
   ws,
   memos,
-  hasEnded,
-  pollOngoing,
+  setHasEndedTrue: hasEnded,
+  setPollOngoingFalse: pollOngoing,
   setResult,
 }: PollProps) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
   );
+  const [waiting, setWaiting] = useState(false);
 
   const [room, setRoom] = useState<RoomType>(defaultRoom);
 
@@ -331,6 +343,7 @@ export default function Poll({
       ).json()) as Response;
 
       setResponse(res);
+      setWaiting(true);
     } catch (e) {
       console.log(e);
     } finally {
@@ -364,7 +377,7 @@ export default function Poll({
             </span>
             <button
               className="btn btn-primary w-full"
-              disabled={!isAnswerComplete || loading}
+              disabled={!isAnswerComplete || loading || waiting}
               onClick={async () => {
                 handleSubmit();
 
@@ -374,7 +387,13 @@ export default function Poll({
                 }
               }}
             >
-              {loading ? <div className="loading" /> : "이대로 제출"}
+              {waiting ? (
+                "다른 사람들을 기다리고 있어요."
+              ) : loading ? (
+                <div className="loading" />
+              ) : (
+                "이대로 제출"
+              )}
             </button>
           </div>
         </BottomSheet>

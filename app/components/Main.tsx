@@ -57,7 +57,7 @@ export default function Main({ room }: { room: RoomType }) {
   }, [socketConnected]);
 
   const [memos, setMemos] = useState<Memo[]>([]);
-  const [pollOngoing, setPollOnging] = useState(false);
+  const [pollOngoing, setPollOngoing] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);
 
   return (
@@ -76,7 +76,7 @@ export default function Main({ room }: { room: RoomType }) {
               ws={ws.current}
               memos={memos}
               setMemos={setMemos}
-              pollOngoing={() => setPollOnging(true)}
+              setPollOngoingTrue={() => setPollOngoing(true)}
             />
           )}
         {pollOngoing && (
@@ -84,8 +84,8 @@ export default function Main({ room }: { room: RoomType }) {
             defaultRoom={room}
             ws={ws.current}
             memos={memos}
-            hasEnded={() => setHasEnded(true)}
-            pollOngoing={() => setPollOnging(false)}
+            setHasEndedTrue={() => setHasEnded(true)}
+            setPollOngoingFalse={() => setPollOngoing(false)}
             setResult={setResult}
           />
         )}
