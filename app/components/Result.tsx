@@ -3,7 +3,15 @@
 import { BottomSheet } from "@/app/components/BottomSheet";
 import { Header } from "@/app/components/Header";
 import { dataURLtoFile, j } from "@/app/lib/utils";
-import { CheckCircle, Download, RotateCcw, Share, X } from "lucide-react";
+import {
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  RotateCcw,
+  Share,
+  X,
+} from "lucide-react";
 import { josa } from "@toss/hangul";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -45,12 +53,12 @@ function Card({ nickname, name, correct, verbose, chats }: CardProps) {
 
   const text = verbose
     ? `${nicknameJosa} ${nameJosa} ${correct ? "맞았어요." : "아니었어요."}`
-    : `${nickname} → ${name}`;
+    : `${nickname.name} → ${name}`;
 
   return (
     <li
       className={j(
-        "rounded-xl border-[3px] p-3 font-semibold",
+        "list-none rounded-xl border-[3px] p-3 font-semibold",
         correct
           ? "border-green-500 bg-green-100 text-green-900"
           : "border-red-500 bg-red-100 text-red-900",
@@ -63,9 +71,11 @@ function Card({ nickname, name, correct, verbose, chats }: CardProps) {
           <X className="flex-none" />
         )}
         <span>{text}</span>
-        <button className="btn btn-ghost btn-sm" onClick={toggleChats}>
-          채팅 {showingChats ? "닫기" : "열기"}
-        </button>
+        {chats.length > 0 && (
+          <button className="btn btn-ghost btn-sm" onClick={toggleChats}>
+            채팅 {showingChats ? "닫기" : "열기"}
+          </button>
+        )}
       </div>
       {showingChats && (
         <div className="flex flex-col gap-3 rounded-md pt-3 text-black">
@@ -121,9 +131,7 @@ export default function Result({
     getMe();
   }, [getMe]);
 
-  const users = defaultRoom.users
-    .map((user) => user.username)
-    .filter((user) => user !== me?.username);
+  const users = defaultRoom.users.filter((user) => user.id !== me?.id);
 
   const handleShareClick = () => {
     if (!shareRef.current) return;
@@ -216,7 +224,7 @@ export default function Result({
               />
             </ul>
           </div>
-          {/* <div className="-translate-y-8 p-4 pt-0">
+          <div className="-translate-y-8 p-4 pt-0">
             <details className="group collapse bg-zinc-200 p-2">
               <summary className="collapse-title !flex w-full flex-row items-center justify-between pr-4">
                 <span className="w-auto font-bold text-zinc-800">
@@ -227,21 +235,21 @@ export default function Result({
               </summary>
               <div className="collapse-content flex flex-col gap-2 !p-2 !pt-0 text-zinc-700">
                 {users.map((user) => {
-                  const userResult = result.find((r) => r.userId === user);
-
+                  const userResult = result.find((r) => r.userId === user.id);
                   return (
                     <div
-                      key={user}
+                      key={user.id}
                       className="flex flex-col gap-2 rounded-lg bg-zinc-300 p-4"
                     >
-                      <h2 className="font-bold">{user}의 생각</h2>
-                      <div className="grid grid-cols-2 gap-2">
+                      <h2 className="font-bold">{user.username}의 생각</h2>
+                      <div className="flex flex-col gap-2">
                         {userResult?.result.friends.map((friend) => (
                           <Card
                             key={friend.name}
                             name={friend.name}
                             nickname={friend.nickname}
                             correct={friend.correct}
+                            chats={[]}
                           />
                         ))}
                       </div>
@@ -250,7 +258,7 @@ export default function Result({
                 })}
               </div>
             </details>
-          </div> */}
+          </div>
         </div>
         <BottomSheet>
           <div className="flex flex-grow flex-col items-center gap-2">
