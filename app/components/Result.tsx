@@ -10,12 +10,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import type { NicknameType, RoomType, UserType } from "@/app/types/room";
 import type { Memo } from "@/app/components/Main";
+import { Bubble } from "./Chat";
 
-interface Card {
+interface CardProps {
   name: string;
-  nickname: string;
+  nickname: NicknameType;
   correct: boolean;
   verbose?: boolean;
+  chats: string[];
 }
 
 interface ResultProps {
@@ -23,13 +25,23 @@ interface ResultProps {
   ws: WebSocket;
   memos: Memo[];
   result: RoomType["result"];
+  organizedChats: {
+    nickname: NicknameType;
+    chats: string[];
+  }[];
 }
 
-function Card({ nickname, name, correct, verbose }: Card) {
+function Card({ nickname, name, correct, verbose, chats }: CardProps) {
   const nicknameJosa = correct
-    ? josa(nickname, "이/가")
-    : josa(nickname, "은/는");
+    ? josa(nickname.name, "이/가")
+    : josa(nickname.name, "은/는");
   const nameJosa = josa(name, "이/가");
+
+  const [showingChats, setShowingChats] = useState(false);
+
+  const toggleChats = () => {
+    setShowingChats((prev) => !prev);
+  };
 
   const text = verbose
     ? `${nicknameJosa} ${nameJosa} ${correct ? "맞았어요." : "아니었어요."}`
@@ -38,23 +50,44 @@ function Card({ nickname, name, correct, verbose }: Card) {
   return (
     <li
       className={j(
-        "flex items-center gap-2 rounded-xl border-[3px] p-3 font-semibold",
+        "rounded-xl border-[3px] p-3 font-semibold",
         correct
           ? "border-green-500 bg-green-100 text-green-900"
           : "border-red-500 bg-red-100 text-red-900",
       )}
     >
-      {correct ? (
-        <CheckCircle className="flex-none" />
-      ) : (
-        <X className="flex-none" />
+      <div className="flex items-center gap-2">
+        {correct ? (
+          <CheckCircle className="flex-none" />
+        ) : (
+          <X className="flex-none" />
+        )}
+        <span>{text}</span>
+        <button className="btn btn-ghost btn-sm" onClick={toggleChats}>
+          채팅 {showingChats ? "닫기" : "열기"}
+        </button>
+      </div>
+      {showingChats && (
+        <div className="flex flex-col gap-3 rounded-md pt-3 text-black">
+          {chats.map((chat, index) => (
+            <Bubble
+              key={index}
+              nickname={nickname}
+              text={chat}
+              isMine={false}
+            />
+          ))}
+        </div>
       )}
-      <span>{text}</span>
     </li>
   );
 }
 
-export default function Result({ defaultRoom, result }: ResultProps) {
+export default function Result({
+  defaultRoom,
+  result,
+  organizedChats,
+}: ResultProps) {
   console.log(result);
 
   const shareRef = useRef<HTMLDivElement>(null);
@@ -163,6 +196,11 @@ export default function Result({ defaultRoom, result }: ResultProps) {
                   nickname={friend.nickname}
                   correct={friend.correct}
                   verbose
+                  chats={
+                    organizedChats.find(
+                      (c) => c.nickname.name === friend.nickname.name,
+                    )?.chats ?? []
+                  }
                 />
               ))}
               <Card
@@ -170,6 +208,11 @@ export default function Result({ defaultRoom, result }: ResultProps) {
                 nickname={result[0].result.aiNickname || "AI"}
                 correct={myResult?.result.guessAI ?? false}
                 verbose
+                chats={
+                  organizedChats.find(
+                    (c) => c.nickname.name === result[0].result.aiNickname.name,
+                  )?.chats ?? []
+                }
               />
             </ul>
           </div>

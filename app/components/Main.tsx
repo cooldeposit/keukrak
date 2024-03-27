@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { RoomType } from "../types/room";
+import { NicknameType, RoomType } from "../types/room";
 import { Chat } from "./Chat";
 import { Pending } from "./Pending";
 import Result from "@/app/components/Result";
@@ -20,6 +20,13 @@ export default function Main({ room }: { room: RoomType }) {
   const ws = useRef<WebSocket | null>(null);
 
   const [result, setResult] = useState<RoomType["result"]>([]);
+
+  const [organizedChats, setOrganizedChats] = useState<
+    {
+      nickname: NicknameType;
+      chats: string[];
+    }[]
+  >([]);
 
   useEffect(() => {
     if (!ws.current) {
@@ -87,6 +94,8 @@ export default function Main({ room }: { room: RoomType }) {
             setHasEndedTrue={() => setHasEnded(true)}
             setPollOngoingFalse={() => setPollOngoing(false)}
             setResult={setResult}
+            organizedChats={organizedChats}
+            setOrganizedChats={setOrganizedChats}
           />
         )}
         {hasEnded && (
@@ -95,6 +104,7 @@ export default function Main({ room }: { room: RoomType }) {
             ws={ws.current}
             memos={memos}
             result={result}
+            organizedChats={organizedChats}
           />
         )}
       </>

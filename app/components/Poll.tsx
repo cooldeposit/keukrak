@@ -41,6 +41,19 @@ interface PollProps {
   setHasEndedTrue: () => void;
   setPollOngoingFalse: () => void;
   setResult: Dispatch<SetStateAction<RoomType["result"]>>;
+
+  organizedChats: {
+    nickname: NicknameType;
+    chats: string[];
+  }[];
+  setOrganizedChats: Dispatch<
+    SetStateAction<
+      {
+        nickname: NicknameType;
+        chats: string[];
+      }[]
+    >
+  >;
 }
 
 function Option({
@@ -183,6 +196,8 @@ export default function Poll({
   setHasEndedTrue: hasEnded,
   setPollOngoingFalse: pollOngoing,
   setResult,
+  organizedChats,
+  setOrganizedChats,
 }: PollProps) {
   const [me, setMe] = useState<(UserType & { nickname: NicknameType }) | null>(
     null,
@@ -251,13 +266,6 @@ export default function Poll({
   useEffect(() => {
     getMe();
   }, [getMe]);
-
-  const [organizedChats, setOrganizedChats] = useState<
-    {
-      nickname: NicknameType;
-      chats: string[];
-    }[]
-  >([]);
 
   useEffect(() => {
     if (room.nicknames)

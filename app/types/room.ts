@@ -15,10 +15,10 @@ export interface RoomType {
     score: number;
     result: {
       guessAI: boolean;
-      aiNickname: string;
+      aiNickname: NicknameType;
       friends: {
         name: string;
-        nickname: string;
+        nickname: NicknameType;
         correct: boolean;
       }[];
     };
