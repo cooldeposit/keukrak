@@ -352,17 +352,6 @@ export function Chat({
       <div className="fixed top-0 z-50 mx-auto w-full max-w-lg items-center p-4 text-right font-bold">
         <Timer nowSeconds={nowSeconds} />
       </div>
-      <button
-        className="hover:opacity-1 fixed left-1/2 top-0 z-50 -translate-x-1/2 p-4 text-sm font-bold text-white opacity-20"
-        onClick={() => {
-          setRoom((prev) => ({
-            ...prev,
-            pollOngoing: true,
-          }));
-        }}
-      >
-        투표 시작
-      </button>
       <div className="flex flex-grow flex-col gap-3 p-4 pt-16">
         {room.chats.map((chat, i) => (
           <Bubble
