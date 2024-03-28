@@ -18,7 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import type { NicknameType, RoomType, UserType } from "@/app/types/room";
 import type { Memo } from "@/app/components/Main";
-import { Bubble } from "./Chat";
+import { Bubble } from "./Chat/Bubble";
 
 interface CardProps {
   name: string;
@@ -26,6 +26,7 @@ interface CardProps {
   correct: boolean;
   verbose?: boolean;
   chats: string[];
+  realName: string;
 }
 
 interface ResultProps {
@@ -39,7 +40,14 @@ interface ResultProps {
   }[];
 }
 
-function Card({ nickname, name, correct, verbose, chats }: CardProps) {
+function Card({
+  nickname,
+  name,
+  correct,
+  verbose,
+  chats,
+  realName,
+}: CardProps) {
   const nicknameJosa = correct
     ? josa(nickname.name, "이/가")
     : josa(nickname.name, "은/는");
@@ -52,7 +60,7 @@ function Card({ nickname, name, correct, verbose, chats }: CardProps) {
   };
 
   const text = verbose
-    ? `${nicknameJosa} ${nameJosa} ${correct ? "맞았어요." : "아니었어요."}`
+    ? `${nicknameJosa} ${nameJosa} ${correct ? "맞았어요." : "아니었어요. (정답: " + realName + ")"}`
     : `${nickname.name} → ${name}`;
 
   return (
@@ -171,7 +179,7 @@ export default function Result({
 
   const myResult = result.find((r) => r.userId === me?.id);
 
-  const friends = myResult?.result.friends;
+  const friends = myResult?.friends;
 
   return (
     <div className="flex h-full flex-col">
@@ -186,7 +194,7 @@ export default function Result({
               <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
                 <span className="text-lg font-semibold">당신의 점수</span>
                 <span className="text-3xl font-bold text-primary">
-                  {myScore?.toFixed(1)}점
+                  {myScore?.toFixed(0)}점
                 </span>
               </div>
               <div className="flex flex-col gap-2 rounded-xl bg-zinc-100 p-4">
@@ -201,6 +209,7 @@ export default function Result({
                 <Card
                   key={friend.name}
                   name={friend.name}
+                  realName={friend.realName}
                   nickname={friend.nickname}
                   correct={friend.correct}
                   verbose
@@ -211,17 +220,6 @@ export default function Result({
                   }
                 />
               ))}
-              <Card
-                name="AI"
-                nickname={result[0].result.aiNickname}
-                correct={myResult?.result.guessAI ?? false}
-                verbose
-                chats={
-                  organizedChats.find(
-                    (c) => c.nickname.name === result[0].result.aiNickname.name,
-                  )?.chats ?? []
-                }
-              />
             </ul>
           </div>
           <div className="-translate-y-8 p-4 pt-0">
@@ -243,23 +241,16 @@ export default function Result({
                     >
                       <h2 className="font-bold">{user.username}의 생각</h2>
                       <div className="flex flex-col gap-2">
-                        {userResult?.result.friends.map((friend) => (
+                        {userResult?.friends.map((friend) => (
                           <Card
                             key={friend.name}
                             name={friend.name}
                             nickname={friend.nickname}
+                            realName={friend.realName}
                             correct={friend.correct}
                             chats={[]}
                           />
                         ))}
-                        {userResult && (
-                          <Card
-                            name="AI"
-                            nickname={userResult.result.aiNickname}
-                            correct={userResult.result.guessAI}
-                            chats={[]}
-                          />
-                        )}
                       </div>
                     </div>
                   );

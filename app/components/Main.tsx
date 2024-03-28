@@ -19,7 +19,7 @@ export default function Main({ room }: { room: RoomType }) {
   const webSocketUrl = process.env.NEXT_PUBLIC_WS_URL!;
   const ws = useRef<WebSocket | null>(null);
 
-  const [result, setResult] = useState<RoomType["result"]>([]);
+  const [result, setResult] = useState<RoomType["result"]>(room.result);
 
   const [organizedChats, setOrganizedChats] = useState<
     {
@@ -64,8 +64,8 @@ export default function Main({ room }: { room: RoomType }) {
   }, [socketConnected]);
 
   const [memos, setMemos] = useState<Memo[]>([]);
-  const [pollOngoing, setPollOngoing] = useState(false);
-  const [hasEnded, setHasEnded] = useState(false);
+  const [pollOngoing, setPollOngoing] = useState(room.status === "poll");
+  const [hasEnded, setHasEnded] = useState(room.status === "pollend");
 
   return (
     ws.current && (

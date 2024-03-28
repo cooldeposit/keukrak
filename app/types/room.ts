@@ -7,21 +7,17 @@ export interface RoomType {
   concept: string;
   questions: string[];
   currentQuestion: number;
-  pollOngoing?: boolean;
-  hasEnded?: boolean;
+  status: "pending" | "chat" | "poll" | "pollend";
   result: {
     userId: string;
     nickname: NicknameType;
     score: number;
-    result: {
-      guessAI: boolean;
-      aiNickname: NicknameType;
-      friends: {
-        name: string;
-        nickname: NicknameType;
-        correct: boolean;
-      }[];
-    };
+    friends: {
+      name: string;
+      realName: string;
+      nickname: NicknameType;
+      correct: boolean;
+    }[];
   }[];
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { BottomSheet } from "@/app/components/BottomSheet";
-import { Bubble } from "@/app/components/Chat";
+import { Bubble } from "@/app/components/Chat/Bubble";
 import { Header } from "@/app/components/Header";
 import type { Memo } from "@/app/components/Main";
 import type { NicknameType, RoomType, UserType } from "@/app/types/room";
@@ -268,7 +268,7 @@ export default function Poll({
   }, [getMe]);
 
   useEffect(() => {
-    if (room.nicknames)
+    if (room.nicknames && me)
       setOrganizedChats(
         room.nicknames
           .filter((nickname) => nickname.name !== me?.nickname.name)
@@ -284,9 +284,10 @@ export default function Poll({
                 .filter((c) => c.nickname.name === nickname.name)
                 .map((c) => c.message),
             }),
-          ),
+          )
+          .sort(() => Math.random() - 0.5),
       );
-  }, [me?.nickname.name, room]);
+  }, [me?.nickname.name, room, setOrganizedChats]);
 
   const isAnswerComplete = (() => {
     if (!answer) {
