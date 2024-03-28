@@ -9,3 +9,16 @@
     @apply break-keep;
   }
 }
+
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: oklch(var(--p));
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: oklch(var(--b1));
+}
