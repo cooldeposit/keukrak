@@ -393,7 +393,7 @@ export function Chat({
           <button
             className="btn btn-primary"
             onClick={handleSend}
-            disabled={loading}
+            disabled={loading || input.length === 0}
           >
             전송
           </button>

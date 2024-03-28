@@ -213,7 +213,7 @@ export default function Result({
               ))}
               <Card
                 name="AI"
-                nickname={result[0].result.aiNickname || "AI"}
+                nickname={result[0].result.aiNickname}
                 correct={myResult?.result.guessAI ?? false}
                 verbose
                 chats={
@@ -252,6 +252,14 @@ export default function Result({
                             chats={[]}
                           />
                         ))}
+                        {userResult && (
+                          <Card
+                            name="AI"
+                            nickname={userResult.result.aiNickname}
+                            correct={userResult.result.guessAI}
+                            chats={[]}
+                          />
+                        )}
                       </div>
                     </div>
                   );
