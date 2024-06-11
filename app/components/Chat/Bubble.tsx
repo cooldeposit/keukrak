@@ -66,56 +66,60 @@ export function Bubble({
 
   return (
     <div className={`chat ${isMine ? "chat-end" : "chat-start"} flex flex-col`}>
-      {!isMine && (
-        <div className="chat-header ml-12 flex items-center gap-1">
-          <div className="mb-1 ml-0.5 whitespace-nowrap text-sm font-medium">
-            {nickname.name}
-          </div>
-          {nickname.name !== MODERATOR && memos && setMemos && users && (
-            <details className="dropdown dropdown-bottom" ref={detailRef}>
-              <summary className="btn btn-xs mb-1 flex items-center gap-1">
-                {guess ? (
-                  <>
-                    <span>{guess.name ?? "AI"}</span>
-                    <RotateCcw size={12} className="flex-none" />
-                  </>
-                ) : (
-                  <span>메모</span>
-                )}
-              </summary>
-              <ul className="menu dropdown-content z-10 w-28 rounded-xl bg-base-100 p-2 font-bold shadow">
-                {users.map((name) => (
-                  <li key={name}>
+      <div
+        className={`chat-header ${isMine ? "mr-12" : "ml-12"} flex items-center gap-1`}
+      >
+        <div className="mb-1 ml-0.5 whitespace-nowrap text-sm font-medium">
+          {nickname.name}
+        </div>
+        {!isMine && (
+          <>
+            {nickname.name !== MODERATOR && memos && setMemos && users && (
+              <details className="dropdown dropdown-bottom" ref={detailRef}>
+                <summary className="btn btn-xs mb-1 flex items-center gap-1">
+                  {guess ? (
+                    <>
+                      <span>{guess.name ?? "AI"}</span>
+                      <RotateCcw size={12} className="flex-none" />
+                    </>
+                  ) : (
+                    <span>메모</span>
+                  )}
+                </summary>
+                <ul className="menu dropdown-content z-10 w-28 rounded-xl bg-base-100 p-2 font-bold shadow">
+                  {users.map((name) => (
+                    <li key={name}>
+                      <button
+                        onClick={() =>
+                          handleMemoClick({
+                            nickname: nickname.name,
+                            name,
+                            isAI: false,
+                          })
+                        }
+                      >
+                        {name}
+                      </button>
+                    </li>
+                  ))}
+                  <li>
                     <button
                       onClick={() =>
-                        handleMemoClick({
-                          nickname: nickname.name,
-                          name,
-                          isAI: false,
-                        })
+                        handleMemoClick({ nickname: nickname.name, isAI: true })
                       }
                     >
-                      {name}
+                      AI
                     </button>
                   </li>
-                ))}
-                <li>
-                  <button
-                    onClick={() =>
-                      handleMemoClick({ nickname: nickname.name, isAI: true })
-                    }
-                  >
-                    AI
-                  </button>
-                </li>
-                <li>
-                  <button onClick={handleRemoveMemoClick}>메모 삭제</button>
-                </li>
-              </ul>
-            </details>
-          )}
-        </div>
-      )}
+                  <li>
+                    <button onClick={handleRemoveMemoClick}>메모 삭제</button>
+                  </li>
+                </ul>
+              </details>
+            )}
+          </>
+        )}
+      </div>
       <div
         className={j("flex items-end gap-4", isMine ? "flex-row-reverse" : "")}
       >
